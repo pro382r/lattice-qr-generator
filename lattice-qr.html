@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lattice — Mark studio</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#f2efe8;
+  --card:#faf8f3;
+  --ink:#141311;
+  --muted:#6e6b64;
+  --hair:#ddd8cc;
+  --bad:#8f2d21;
+  --accent-ring: rgba(20,19,17,0.14);
+  --radius-card:24px;
+  --radius-ctl:14px;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'IBM Plex Sans', sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  position:relative;
+  min-height:100vh;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background-image:radial-gradient(circle, rgba(20,19,17,0.09) 1px, transparent 1px);
+  background-size:22px 22px;
+  pointer-events:none;
+  z-index:0;
+}
+@media (prefers-reduced-motion:no-preference){
+  .press{transition:transform 120ms ease, background-color 150ms ease, border-color 150ms ease, color 150ms ease;}
+  .press:active{transform:scale(0.96);}
+  .fade{transition:opacity 150ms ease, color 150ms ease, background-color 150ms ease, border-color 150ms ease;}
+}
+
+button{font-family:inherit;cursor:pointer;}
+input,textarea,select{font-family:inherit;}
+
+.wrap{
+  position:relative;
+  z-index:1;
+  max-width:72rem;
+  margin:0 auto;
+  padding:0 1.5rem 6rem;
+}
+
+header{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  padding:2.25rem 0 1.5rem;
+  max-width:72rem;
+  margin:0 auto;
+  padding-left:1.5rem;
+  padding-right:1.5rem;
+  position:relative;
+  z-index:1;
+}
+.wordmark{
+  font-family:'Instrument Serif', serif;
+  font-style:italic;
+  font-size:1.9rem;
+  letter-spacing:0.01em;
+}
+.tagline{
+  font-size:0.8rem;
+  color:var(--muted);
+  letter-spacing:0.01em;
+}
+
+.layout{
+  display:grid;
+  grid-template-columns: minmax(280px, 420px) 1fr;
+  gap:1.75rem;
+  align-items:start;
+}
+@media (max-width: 880px){
+  .layout{grid-template-columns:1fr;}
+  .plate{order:2;}
+  .editor{order:1;}
+}
+
+/* ---------- PLATE ---------- */
+.plate{
+  position:sticky;
+  top:1.5rem;
+}
+@media (max-width:880px){ .plate{position:static;} }
+
+.plate-card{
+  background:var(--card);
+  border:1px solid var(--hair);
+  border-radius:var(--radius-card);
+  padding:1.75rem;
+}
+
+.qr-area{
+  aspect-ratio:1/1;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+.qr-area svg{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.empty-state{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:1rem;
+  text-align:center;
+  color:var(--muted);
+  padding:1rem;
+}
+.empty-state svg{ opacity:0.55; }
+.empty-state p{
+  margin:0;
+  font-size:0.85rem;
+  max-width:16rem;
+}
+
+.qr-meta{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:0.75rem;
+  margin-top:1.25rem;
+  padding-top:1rem;
+  border-top:1px solid var(--hair);
+  font-family:'IBM Plex Mono', monospace;
+  font-size:0.72rem;
+  color:var(--muted);
+}
+.qr-meta .payload-preview{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  flex:1;
+  min-width:0;
+}
+.qr-meta .qr-dims{
+  flex-shrink:0;
+}
+
+.qr-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0.6rem;
+  margin-top:1.25rem;
+}
+.qr-actions button{
+  border:1px solid var(--hair);
+  background:transparent;
+  color:var(--ink);
+  border-radius:var(--radius-ctl);
+  padding:0.65rem 0.75rem;
+  font-size:0.82rem;
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0.4rem;
+}
+.qr-actions button:hover{ background:rgba(20,19,17,0.04); }
+.qr-actions button:disabled{ opacity:0.4; cursor:not-allowed; }
+.qr-actions button.primary{
+  background:var(--ink);
+  color:var(--card);
+  border-color:var(--ink);
+  grid-column:1/-1;
+}
+.qr-actions button.primary:hover{ background:#26241f; }
+
+/* ---------- EDITOR ---------- */
+.editor-card{
+  background:var(--card);
+  border:1px solid var(--hair);
+  border-radius:var(--radius-card);
+  padding:1.75rem;
+  margin-bottom:1.25rem;
+}
+
+.section-label{
+  font-size:0.72rem;
+  color:var(--muted);
+  margin:0 0 0.9rem;
+  letter-spacing:0.01em;
+}
+
+.tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.4rem;
+  margin-bottom:1.5rem;
+}
+.tab-btn{
+  display:flex;
+  align-items:center;
+  gap:0.4rem;
+  border:1px solid var(--hair);
+  background:transparent;
+  color:var(--muted);
+  border-radius:999px;
+  padding:0.5rem 0.9rem;
+  font-size:0.82rem;
+  min-height:38px;
+}
+.tab-btn svg{ width:15px;height:15px; }
+.tab-btn[aria-selected="true"]{
+  background:var(--ink);
+  color:var(--card);
+  border-color:var(--ink);
+}
+
+.field{ margin-bottom:1rem; }
+.field:last-child{ margin-bottom:0; }
+.field label{
+  display:block;
+  font-size:0.78rem;
+  color:var(--muted);
+  margin-bottom:0.4rem;
+}
+.field input[type=text],
+.field input[type=tel],
+.field input[type=password],
+.field textarea{
+  width:100%;
+  border:1px solid var(--hair);
+  background:#fff;
+  border-radius:var(--radius-ctl);
+  padding:0.7rem 0.85rem;
+  font-size:0.92rem;
+  color:var(--ink);
+  min-height:44px;
+}
+.field textarea{ min-height:90px; resize:vertical; }
+.field input:focus, .field textarea:focus, .field select:focus{
+  outline:2px solid var(--accent-ring);
+  outline-offset:1px;
+  border-color:var(--ink);
+}
+.field-hint{
+  font-size:0.74rem;
+  color:var(--muted);
+  margin-top:0.35rem;
+}
+
+.row-inline{
+  display:flex;
+  gap:0.6rem;
+  align-items:flex-end;
+}
+.row-inline .field{ flex:1; margin-bottom:0; }
+@media (max-width:520px){
+  .row-inline{ flex-direction:column; align-items:stretch; }
+}
+
+.pass-field{ position:relative; }
+.pass-field input{ padding-right:2.6rem; }
+.eye-btn{
+  position:absolute;
+  right:0.4rem;
+  top:50%;
+  transform:translateY(-50%);
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  width:36px;height:36px;
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+}
+.eye-btn:hover{ background:rgba(20,19,17,0.06); }
+
+.check-row{
+  display:flex;
+  align-items:center;
+  gap:0.55rem;
+  font-size:0.85rem;
+  color:var(--ink);
+  margin-top:0.9rem;
+}
+.check-row input{ width:17px;height:17px; }
+
+.seg-radio{
+  display:flex;
+  gap:0.5rem;
+  flex-wrap:wrap;
+}
+.seg-radio label{
+  border:1px solid var(--hair);
+  border-radius:999px;
+  padding:0.4rem 0.85rem;
+  font-size:0.82rem;
+  color:var(--muted);
+  cursor:pointer;
+}
+.seg-radio input{ position:absolute; opacity:0; pointer-events:none; }
+.seg-radio input:checked + span{ color:inherit; }
+.seg-radio label:has(input:checked){
+  background:var(--ink);
+  border-color:var(--ink);
+  color:var(--card);
+}
+
+.gen-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0.5rem;
+  border:1px solid var(--ink);
+  background:var(--ink);
+  color:var(--card);
+  border-radius:var(--radius-ctl);
+  padding:0.75rem 1.1rem;
+  font-size:0.9rem;
+  min-height:44px;
+  margin-top:1.1rem;
+  width:100%;
+}
+.gen-btn:hover{ background:#26241f; }
+@media (min-width:521px){
+  .gen-btn.beside{ width:auto; margin-top:0; flex-shrink:0; }
+}
+
+.samples{
+  display:flex;
+  gap:0.5rem;
+  flex-wrap:wrap;
+  margin-top:1.25rem;
+  padding-top:1.1rem;
+  border-top:1px solid var(--hair);
+}
+.sample-chip{
+  border:1px solid var(--hair);
+  background:transparent;
+  color:var(--muted);
+  border-radius:999px;
+  padding:0.35rem 0.75rem;
+  font-size:0.76rem;
+}
+.sample-chip:hover{ background:rgba(20,19,17,0.05); color:var(--ink); }
+
+/* style editor */
+.style-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.25rem;
+}
+@media (max-width:520px){ .style-grid{ grid-template-columns:1fr; } }
+
+.color-field{
+  display:flex;
+  align-items:center;
+  gap:0.6rem;
+  border:1px solid var(--hair);
+  border-radius:var(--radius-ctl);
+  padding:0.5rem 0.7rem;
+}
+.color-field input[type=color]{
+  width:32px;height:32px;
+  border:none;
+  border-radius:8px;
+  padding:0;
+  background:none;
+}
+.color-field .hex{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:0.78rem;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+
+.presets{
+  display:flex;
+  gap:0.5rem;
+  margin-top:0.8rem;
+  flex-wrap:wrap;
+}
+.preset-swatch{
+  width:32px;height:32px;
+  border-radius:50%;
+  border:1px solid var(--hair);
+  overflow:hidden;
+  display:flex;
+  padding:0;
+}
+.preset-swatch span{ flex:1; }
+.preset-swatch:hover{ border-color:var(--ink); }
+
+.module-toggle{
+  display:flex;
+  border:1px solid var(--hair);
+  border-radius:999px;
+  overflow:hidden;
+  width:fit-content;
+}
+.module-toggle button{
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  padding:0.45rem 1rem;
+  font-size:0.82rem;
+}
+.module-toggle button[aria-pressed="true"]{
+  background:var(--ink);
+  color:var(--card);
+}
+
+.slider-row{
+  display:flex;
+  align-items:center;
+  gap:0.8rem;
+}
+.slider-row input[type=range]{ flex:1; accent-color:var(--ink); }
+.slider-row .val{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:0.78rem;
+  color:var(--muted);
+  width:1.2rem;
+  text-align:right;
+}
+
+.size-toggle{ display:flex; gap:0.5rem; }
+.size-toggle button{
+  flex:1;
+  border:1px solid var(--hair);
+  background:transparent;
+  color:var(--muted);
+  border-radius:var(--radius-ctl);
+  padding:0.55rem 0.5rem;
+  font-size:0.82rem;
+}
+.size-toggle button[aria-pressed="true"]{
+  background:var(--ink);
+  color:var(--card);
+  border-color:var(--ink);
+}
+
+.contrast-warn{
+  display:none;
+  align-items:flex-start;
+  gap:0.5rem;
+  background:rgba(143,45,33,0.08);
+  color:var(--bad);
+  border:1px solid rgba(143,45,33,0.25);
+  border-radius:var(--radius-ctl);
+  padding:0.7rem 0.85rem;
+  font-size:0.8rem;
+  margin-top:1.1rem;
+}
+.contrast-warn.show{ display:flex; }
+
+/* history */
+.history-row{
+  display:flex;
+  gap:0.75rem;
+  overflow-x:auto;
+  padding-bottom:0.3rem;
+}
+.history-empty{
+  color:var(--muted);
+  font-size:0.82rem;
+}
+.hist-item{
+  flex-shrink:0;
+  width:104px;
+  border:1px solid var(--hair);
+  border-radius:var(--radius-ctl);
+  padding:0.6rem;
+  position:relative;
+  background:#fff;
+  text-align:left;
+}
+.hist-item .hist-thumb{
+  width:100%;
+  aspect-ratio:1/1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:0.4rem;
+}
+.hist-item .hist-thumb svg{ width:100%;height:100%; }
+.hist-item .hist-label{
+  font-size:0.72rem;
+  color:var(--ink);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.hist-item .hist-kind{
+  font-size:0.66rem;
+  color:var(--muted);
+  text-transform:capitalize;
+}
+.hist-item .hist-x{
+  position:absolute;
+  top:0.3rem;
+  right:0.3rem;
+  width:20px;height:20px;
+  border-radius:50%;
+  border:none;
+  background:var(--card);
+  color:var(--muted);
+  font-size:0.7rem;
+  display:flex;align-items:center;justify-content:center;
+  line-height:1;
+}
+.hist-item .hist-x:hover{ color:var(--bad); }
+.hist-item .hist-open{
+  position:absolute;
+  inset:0;
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+.history-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:0.8rem;
+}
+.clear-btn{
+  border:none;
+  background:none;
+  color:var(--muted);
+  font-size:0.76rem;
+  text-decoration:underline;
+  text-underline-offset:2px;
+  padding:0.3rem;
+}
+.clear-btn:hover{ color:var(--bad); }
+
+footer.foot{
+  text-align:center;
+  color:var(--muted);
+  font-size:0.75rem;
+  padding:2rem 1.5rem 1rem;
+  position:relative;
+  z-index:1;
+}
+
+/* mobile bar */
+.mobile-bar{
+  display:none;
+  position:fixed;
+  left:0;right:0;bottom:0;
+  padding:0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background:var(--card);
+  border-top:1px solid var(--hair);
+  z-index:5;
+}
+.mobile-bar button{
+  width:100%;
+  min-height:48px;
+  background:var(--ink);
+  color:var(--card);
+  border:none;
+  border-radius:var(--radius-ctl);
+  font-size:0.92rem;
+}
+.mobile-bar.show{ display:block; }
+@media (max-width:880px){
+  body{ padding-bottom:0; }
+  .wrap{ padding-bottom:5.5rem; }
+}
+
+/* toast */
+.toast-host{
+  position:fixed;
+  bottom:1.25rem;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+  display:flex;
+  flex-direction:column;
+  gap:0.5rem;
+  align-items:center;
+}
+.toast{
+  background:var(--ink);
+  color:var(--card);
+  padding:0.6rem 1rem;
+  border-radius:999px;
+  font-size:0.82rem;
+  opacity:0;
+  transform:translateY(6px);
+}
+@media (prefers-reduced-motion:no-preference){
+  .toast{ transition:opacity 150ms ease, transform 150ms ease; }
+}
+.toast.show{ opacity:1; transform:translateY(0); }
+@media (max-width:880px){
+  .toast-host{ bottom:5.5rem; }
+}
+
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">lattice</div>
+  <div class="tagline">Mark studio</div>
+</header>
+
+<div class="wrap">
+  <div class="layout">
+
+    <!-- PLATE -->
+    <section class="plate" aria-label="Mark preview">
+      <div class="plate-card" id="mark">
+        <div class="qr-area" id="qrArea" aria-live="polite">
+          <div class="empty-state" id="emptyState">
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g stroke="#c9c3b3" stroke-width="1">
+                <path d="M4 4h28v28H4z" stroke-width="2"/>
+                <path d="M10 10h16v16H10z"/>
+                <path d="M88 4h28v28H88z" stroke-width="2"/>
+                <path d="M94 10h16v16H94z"/>
+                <path d="M4 88h28v28H4z" stroke-width="2"/>
+                <path d="M10 94h16v16H10z"/>
+              </g>
+              <g fill="#d8d2c2">
+                <rect x="44" y="4" width="6" height="6"/><rect x="56" y="4" width="6" height="6"/><rect x="68" y="4" width="6" height="6"/>
+                <rect x="44" y="16" width="6" height="6"/><rect x="68" y="16" width="6" height="6"/>
+                <rect x="4" y="44" width="6" height="6"/><rect x="16" y="44" width="6" height="6"/><rect x="28" y="44" width="6" height="6"/>
+                <rect x="44" y="44" width="6" height="6"/><rect x="56" y="50" width="6" height="6"/><rect x="68" y="44" width="6" height="6"/>
+                <rect x="88" y="44" width="6" height="6"/><rect x="100" y="50" width="6" height="6"/><rect x="112" y="44" width="6" height="6"/>
+                <rect x="4" y="68" width="6" height="6"/><rect x="20" y="68" width="6" height="6"/><rect x="32" y="72" width="6" height="6"/>
+                <rect x="44" y="88" width="6" height="6"/><rect x="56" y="94" width="6" height="6"/><rect x="68" y="88" width="6" height="6"/>
+                <rect x="44" y="106" width="6" height="6"/><rect x="60" y="106" width="6" height="6"/><rect x="72" y="106" width="6" height="6"/>
+                <rect x="88" y="68" width="6" height="6"/><rect x="100" y="72" width="6" height="6"/><rect x="112" y="68" width="6" height="6"/>
+                <rect x="88" y="88" width="6" height="6"/><rect x="88" y="100" width="6" height="6"/><rect x="100" y="94" width="6" height="6"/>
+                <rect x="112" y="88" width="6" height="6"/><rect x="112" y="100" width="6" height="6"/>
+              </g>
+            </svg>
+            <p>Add content to print a scannable mark.</p>
+          </div>
+        </div>
+
+        <div class="qr-meta" id="qrMeta" style="display:none;">
+          <span class="payload-preview" id="payloadPreview"></span>
+          <span class="qr-dims" id="qrDims"></span>
+        </div>
+
+        <div class="qr-actions">
+          <button class="press" id="btnCopyPayload" disabled>Copy payload</button>
+          <button class="press" id="btnCopyImage" disabled>Copy image</button>
+          <button class="press" id="btnDownloadSvg" disabled>Download SVG</button>
+          <button class="press" id="btnDownloadPngSmall" disabled>PNG (small)</button>
+          <button class="press primary" id="btnDownloadPng" disabled>Download PNG</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- EDITOR -->
+    <section class="editor" aria-label="Content and style editor">
+
+      <div class="editor-card">
+        <p class="section-label">Content</p>
+        <div class="tabs" role="tablist" id="tabs">
+          <button class="tab-btn press" role="tab" data-tab="link" aria-selected="true">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 12a3 3 0 0 0 4.5.5l2-2a3 3 0 0 0-4.24-4.24l-1 1"/><path d="M12 8a3 3 0 0 0-4.5-.5l-2 2A3 3 0 0 0 9.74 13.7l1-1"/></svg>
+            Link
+          </button>
+          <button class="tab-btn press" role="tab" data-tab="text" aria-selected="false">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h12M4 10h12M4 15h8"/></svg>
+            Text
+          </button>
+          <button class="tab-btn press" role="tab" data-tab="wifi" aria-selected="false">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8c4-3.5 10-3.5 14 0M5.5 11c3-2.3 6-2.3 9 0M8.5 14c1-0.8 2-0.8 3 0"/><circle cx="10" cy="16.3" r="0.9" fill="currentColor" stroke="none"/></svg>
+            Wi-Fi
+          </button>
+          <button class="tab-btn press" role="tab" data-tab="email" aria-selected="false">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="14" height="10" rx="1.5"/><path d="M4 6l6 5 6-5"/></svg>
+            Email
+          </button>
+          <button class="tab-btn press" role="tab" data-tab="phone" aria-selected="false">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3.5h3l1.2 3.4-1.8 1.6a9 9 0 0 0 4.1 4.1l1.6-1.8 3.4 1.2v3a1.5 1.5 0 0 1-1.6 1.5A13.5 13.5 0 0 1 3.5 5.1 1.5 1.5 0 0 1 5 3.5z"/></svg>
+            Phone
+          </button>
+          <button class="tab-btn press" role="tab" data-tab="contact" aria-selected="false">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="7" r="3"/><path d="M4 16.5c1.2-3 3.4-4.5 6-4.5s4.8 1.5 6 4.5"/></svg>
+            Contact
+          </button>
+        </div>
+
+        <form id="contentForm">
+          <div class="tabpanel" data-panel="link">
+            <div class="row-inline">
+              <div class="field">
+                <label for="f-url">Link</label>
+                <input type="text" id="f-url" placeholder="example.com" autocomplete="off">
+                <p class="field-hint">Paste a link, then press Enter or Generate.</p>
+              </div>
+              <button type="submit" class="gen-btn beside">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="6" height="6"/><rect x="11" y="3" width="6" height="6"/><rect x="3" y="11" width="6" height="6"/><path d="M11 11h3v3h-3zM16 11v6M11 16h6"/></svg>
+                Generate
+              </button>
+            </div>
+          </div>
+
+          <div class="tabpanel" data-panel="text" hidden>
+            <div class="field">
+              <label for="f-text">Text</label>
+              <textarea id="f-text" placeholder="Anything you want to print as a mark."></textarea>
+            </div>
+            <button type="submit" class="gen-btn">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="6" height="6"/><rect x="11" y="3" width="6" height="6"/><rect x="3" y="11" width="6" height="6"/><path d="M11 11h3v3h-3zM16 11v6M11 16h6"/></svg>
+              Generate
+            </button>
+          </div>
+
+          <div class="tabpanel" data-panel="wifi" hidden>
+            <div class="field">
+              <label for="f-ssid">Network name</label>
+              <input type="text" id="f-ssid" placeholder="Guest Network" autocomplete="off">
+            </div>
+            <div class="field">
+              <label>Security</label>
+              <div class="seg-radio" id="wifiSec">
+                <label><input type="radio" name="wifisec" value="WPA" checked><span>WPA</span></label>
+                <label><input type="radio" name="wifisec" value="WEP"><span>WEP</span></label>
+                <label><input type="radio" name="wifisec" value="nopass"><span>Open</span></label>
+              </div>
+            </div>
+            <div class="field" id="wifiPassField">
+              <label for="f-wifipass">Password</label>
+              <div class="pass-field">
+                <input type="password" id="f-wifipass" placeholder="lattice-demo" autocomplete="off">
+                <button type="button" class="eye-btn" id="wifiEye" aria-label="Show password">
+                  <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 10s3-5.5 8-5.5S18 10 18 10s-3 5.5-8 5.5S2 10 2 10z"/><circle cx="10" cy="10" r="2.2"/></svg>
+                </button>
+              </div>
+            </div>
+            <label class="check-row">
+              <input type="checkbox" id="f-hidden">
+              Hidden network
+            </label>
+            <button type="submit" class="gen-btn">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="6" height="6"/><rect x="11" y="3" width="6" height="6"/><rect x="3" y="11" width="6" height="6"/><path d="M11 11h3v3h-3zM16 11v6M11 16h6"/></svg>
+              Generate
+            </button>
+          </div>
+
+          <div class="tabpanel" data-panel="email" hidden>
+            <div class="field">
+              <label for="f-emailto">To</label>
+              <input type="text" id="f-emailto" placeholder="name@example.com" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="f-emailsub">Subject</label>
+              <input type="text" id="f-emailsub" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="f-emailbody">Body</label>
+              <textarea id="f-emailbody"></textarea>
+            </div>
+            <button type="submit" class="gen-btn">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="6" height="6"/><rect x="11" y="3" width="6" height="6"/><rect x="3" y="11" width="6" height="6"/><path d="M11 11h3v3h-3zM16 11v6M11 16h6"/></svg>
+              Generate
+            </button>
+          </div>
+
+          <div class="tabpanel" data-panel="phone" hidden>
+            <div class="field">
+              <label for="f-phone">Phone number</label>
+              <input type="tel" id="f-phone" placeholder="+1 555 0100" autocomplete="off">
+            </div>
+            <button type="submit" class="gen-btn">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="6" height="6"/><rect x="11" y="3" width="6" height="6"/><rect x="3" y="11" width="6" height="6"/><path d="M11 11h3v3h-3zM16 11v6M11 16h6"/></svg>
+              Generate
+            </button>
+          </div>
+
+          <div class="tabpanel" data-panel="contact" hidden>
+            <div class="field">
+              <label for="f-cname">Name</label>
+              <input type="text" id="f-cname" placeholder="Ada Lovelace" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="f-corg">Organization</label>
+              <input type="text" id="f-corg" placeholder="Analytical Engines" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="f-cphone">Phone</label>
+              <input type="tel" id="f-cphone" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="f-cemail">Email</label>
+              <input type="text" id="f-cemail" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="f-curl">Website</label>
+              <input type="text" id="f-curl" autocomplete="off">
+            </div>
+            <button type="submit" class="gen-btn">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="6" height="6"/><rect x="11" y="3" width="6" height="6"/><rect x="3" y="11" width="6" height="6"/><path d="M11 11h3v3h-3zM16 11v6M11 16h6"/></svg>
+              Generate
+            </button>
+          </div>
+        </form>
+
+        <div class="samples">
+          <button class="sample-chip press" data-sample="website">Website</button>
+          <button class="sample-chip press" data-sample="wifi">Wi-Fi</button>
+          <button class="sample-chip press" data-sample="contact">Contact</button>
+        </div>
+      </div>
+
+      <div class="editor-card">
+        <p class="section-label">Style</p>
+        <div class="style-grid">
+          <div class="field">
+            <label>Ink</label>
+            <div class="color-field">
+              <input type="color" id="f-ink" value="#141311">
+              <span class="hex" id="inkHex">#141311</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Paper</label>
+            <div class="color-field">
+              <input type="color" id="f-paper" value="#ffffff">
+              <span class="hex" id="paperHex">#FFFFFF</span>
+            </div>
+          </div>
+        </div>
+        <div class="presets" id="presets">
+          <button class="preset-swatch press" data-ink="#141311" data-paper="#ffffff" title="Ink" aria-label="Ink preset"><span style="background:#141311"></span><span style="background:#ffffff"></span></button>
+          <button class="preset-swatch press" data-ink="#f7f4ee" data-paper="#141311" title="Night" aria-label="Night preset"><span style="background:#f7f4ee"></span><span style="background:#141311"></span></button>
+          <button class="preset-swatch press" data-ink="#243038" data-paper="#f3f1ec" title="Slate" aria-label="Slate preset"><span style="background:#243038"></span><span style="background:#f3f1ec"></span></button>
+          <button class="preset-swatch press" data-ink="#1c3329" data-paper="#f2f6f3" title="Forest" aria-label="Forest preset"><span style="background:#1c3329"></span><span style="background:#f2f6f3"></span></button>
+        </div>
+
+        <div class="contrast-warn" id="contrastWarn">
+          <span>Low contrast — scanners may fail. Darken the ink or lighten the paper.</span>
+        </div>
+
+        <div class="field" style="margin-top:1.4rem;">
+          <label>Module</label>
+          <div class="module-toggle" role="radiogroup" aria-label="Module shape">
+            <button type="button" data-module="square" aria-pressed="true">Square</button>
+            <button type="button" data-module="soft" aria-pressed="false">Soft</button>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:1.2rem;">
+          <label>Error correction</label>
+          <div class="seg-radio" role="radiogroup" aria-label="Error correction level" id="eccGroup">
+            <label><input type="radio" name="ecc" value="L"><span>L 12%</span></label>
+            <label><input type="radio" name="ecc" value="M" checked><span>M 18%</span></label>
+            <label><input type="radio" name="ecc" value="Q"><span>Q 24%</span></label>
+            <label><input type="radio" name="ecc" value="H"><span>H 30%</span></label>
+          </div>
+          <p class="field-hint">How much of the mark can be damaged and still scan. Higher is denser.</p>
+        </div>
+
+        <div class="field" style="margin-top:1.2rem;">
+          <label for="f-margin">Quiet zone</label>
+          <div class="slider-row">
+            <input type="range" id="f-margin" min="0" max="4" step="1" value="2">
+            <span class="val" id="marginVal">2</span>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:1.2rem;">
+          <label>Download size</label>
+          <div class="size-toggle" role="radiogroup" aria-label="Download size">
+            <button type="button" data-size="256" aria-pressed="false">256</button>
+            <button type="button" data-size="512" aria-pressed="true">512</button>
+            <button type="button" data-size="1024" aria-pressed="false">1024</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="editor-card">
+        <p class="section-label">History</p>
+        <div class="history-row" id="historyRow">
+          <span class="history-empty">Marks you download or copy will appear here.</span>
+        </div>
+        <div class="history-footer" id="historyFooter" style="display:none;">
+          <span></span>
+          <button class="clear-btn" id="clearHistory">Clear all</button>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+  <footer class="foot">Marks are encoded in the browser. Nothing is uploaded.</footer>
+</div>
+
+<div class="mobile-bar" id="mobileBar">
+  <button id="btnDownloadPngMobile" disabled>Download PNG</button>
+</div>
+
+<div class="toast-host" id="toastHost"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var HIST_KEY = "lattice.history.v1";
+  var HIST_MAX = 10;
+
+  var state = {
+    tab: "link",
+    ink: "#141311",
+    paper: "#ffffff",
+    moduleStyle: "square",
+    ecc: "M",
+    margin: 2,
+    downloadSize: 512,
+    payload: null,
+    label: null,
+    matrix: null,
+    dim: 0,
+    ready: false
+  };
+
+  /* ---------- helpers ---------- */
+  function $(sel){ return document.querySelector(sel); }
+  function $all(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+
+  function toast(msg){
+    var host = $("#toastHost");
+    var el = document.createElement("div");
+    el.className = "toast";
+    el.textContent = msg;
+    host.appendChild(el);
+    requestAnimationFrame(function(){ el.classList.add("show"); });
+    setTimeout(function(){
+      el.classList.remove("show");
+      setTimeout(function(){ el.remove(); }, 200);
+    }, 2200);
+  }
+
+  function escWifi(s){ return String(s || "").replace(/([\\;,:"])/g, "\\$1"); }
+  function escVcard(s){ return String(s || "").replace(/\\/g, "\\\\").replace(/,/g, "\\,").replace(/;/g, "\\;").replace(/\n/g, "\\n"); }
+
+  function normalizeUrl(u){
+    u = (u || "").trim();
+    if(!u) return "";
+    if(!/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(u)) u = "https://" + u;
+    return u;
+  }
+
+  /* ---------- tabs ---------- */
+  function setTab(tab){
+    state.tab = tab;
+    $all(".tab-btn").forEach(function(b){ b.setAttribute("aria-selected", b.dataset.tab === tab ? "true" : "false"); });
+    $all(".tabpanel").forEach(function(p){ p.hidden = p.dataset.panel !== tab; });
+    liveGenerate();
+  }
+  $all(".tab-btn").forEach(function(b){
+    b.addEventListener("click", function(){ setTab(b.dataset.tab); });
+  });
+
+  /* ---------- wifi sub-ui ---------- */
+  function updateWifiPassVisibility(){
+    var sec = document.querySelector('input[name="wifisec"]:checked').value;
+    $("#wifiPassField").style.display = sec === "nopass" ? "none" : "";
+  }
+  $all('input[name="wifisec"]').forEach(function(r){ r.addEventListener("change", function(){ updateWifiPassVisibility(); liveGenerate(); }); });
+  updateWifiPassVisibility();
+
+  $("#wifiEye").addEventListener("click", function(){
+    var inp = $("#f-wifipass");
+    var showing = inp.type === "text";
+    inp.type = showing ? "password" : "text";
+    this.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+  });
+
+  /* ---------- payload builders ---------- */
+  function buildPayload(){
+    switch(state.tab){
+      case "link": {
+        var url = $("#f-url").value.trim();
+        if(!url) return { payload: "", label: "" };
+        return { payload: normalizeUrl(url), label: url };
+      }
+      case "text": {
+        var t = $("#f-text").value;
+        return { payload: t, label: t.slice(0, 40) };
+      }
+      case "wifi": {
+        var ssid = $("#f-ssid").value;
+        var sec = document.querySelector('input[name="wifisec"]:checked').value;
+        var pass = $("#f-wifipass").value;
+        var hidden = $("#f-hidden").checked;
+        if(!ssid.trim()) return { payload: "", label: "" };
+        var p = "WIFI:T:" + sec + ";S:" + escWifi(ssid) + ";P:" + (sec === "nopass" ? "" : escWifi(pass)) + ";H:" + (hidden ? "true" : "false") + ";;";
+        return { payload: p, label: ssid };
+      }
+      case "email": {
+        var to = $("#f-emailto").value.trim();
+        var sub = $("#f-emailsub").value;
+        var body = $("#f-emailbody").value;
+        if(!to) return { payload: "", label: "" };
+        var qs = [];
+        if(sub) qs.push("subject=" + encodeURIComponent(sub));
+        if(body) qs.push("body=" + encodeURIComponent(body));
+        return { payload: "mailto:" + to + (qs.length ? "?" + qs.join("&") : ""), label: to };
+      }
+      case "phone": {
+        var raw = $("#f-phone").value;
+        var digits = raw.replace(/[^0-9+]/g, "");
+        if(!digits) return { payload: "", label: "" };
+        return { payload: "tel:" + digits, label: raw.trim() };
+      }
+      case "contact": {
+        var name = $("#f-cname").value.trim();
+        var org = $("#f-corg").value.trim();
+        var phone = $("#f-cphone").value.trim();
+        var email = $("#f-cemail").value.trim();
+        var web = $("#f-curl").value.trim();
+        if(!name) return { payload: "", label: "" };
+        var parts = name.split(/\s+/);
+        var last = parts.length > 1 ? parts.pop() : "";
+        var first = parts.join(" ");
+        var lines = ["BEGIN:VCARD", "VERSION:3.0"];
+        lines.push("N:" + escVcard(last) + ";" + escVcard(first) + ";;;");
+        lines.push("FN:" + escVcard(name));
+        if(org) lines.push("ORG:" + escVcard(org));
+        if(phone) lines.push("TEL:" + escVcard(phone));
+        if(email) lines.push("EMAIL:" + escVcard(email));
+        if(web) lines.push("URL:" + escVcard(normalizeUrl(web)));
+        lines.push("END:VCARD");
+        return { payload: lines.join("\n"), label: name };
+      }
+    }
+    return { payload: "", label: "" };
+  }
+
+  /* ---------- QR encode ---------- */
+  function isFinder(r, c, count){
+    if(r < 7 && c < 7) return true;
+    if(r < 7 && c >= count - 7) return true;
+    if(r >= count - 7 && c < 7) return true;
+    return false;
+  }
+
+  function encode(text){
+    var qr = qrcode(0, state.ecc);
+    qr.addData(text);
+    qr.make();
+    var count = qr.getModuleCount();
+    var matrix = [];
+    for(var r = 0; r < count; r++){
+      var row = [];
+      for(var c = 0; c < count; c++) row.push(qr.isDark(r, c));
+      matrix.push(row);
+    }
+    return { matrix: matrix, count: count };
+  }
+
+  /* ---------- contrast ---------- */
+  function hexToRgb(hex){
+    hex = hex.replace("#", "");
+    if(hex.length === 3) hex = hex.split("").map(function(c){ return c + c; }).join("");
+    var n = parseInt(hex, 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  function relLum(rgb){
+    function ch(v){ v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+    return 0.2126 * ch(rgb.r) + 0.7152 * ch(rgb.g) + 0.0722 * ch(rgb.b);
+  }
+  function contrastRatio(hexA, hexB){
+    var la = relLum(hexToRgb(hexA)) + 0.05;
+    var lb = relLum(hexToRgb(hexB)) + 0.05;
+    return la > lb ? la / lb : lb / la;
+  }
+
+  /* ---------- render preview (SVG) ---------- */
+  function buildSvgMarkup(matrix, count, margin, ink, paper, moduleStyle, forExport){
+    var dim = count + margin * 2;
+    var parts = [];
+    parts.push('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + dim + ' ' + dim + '" shape-rendering="' + (moduleStyle === "soft" ? "geometricPrecision" : "crispEdges") + '">');
+    parts.push('<rect x="0" y="0" width="' + dim + '" height="' + dim + '" fill="' + paper + '"/>');
+    var rx = moduleStyle === "soft" ? 0.28 : 0;
+    for(var r = 0; r < count; r++){
+      for(var c = 0; c < count; c++){
+        if(!matrix[r][c]) continue;
+        var soft = moduleStyle === "soft" && !isFinder(r, c, count);
+        var x = c + margin, y = r + margin;
+        if(soft){
+          parts.push('<rect x="' + x + '" y="' + y + '" width="1" height="1" rx="' + rx + '" ry="' + rx + '" fill="' + ink + '"/>');
+        } else {
+          parts.push('<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + ink + '"/>');
+        }
+      }
+    }
+    parts.push('</svg>');
+    return parts.join("");
+  }
+
+  function renderPreview(){
+    var area = $("#qrArea");
+    if(!state.ready){
+      area.innerHTML = "";
+      area.appendChild($("#emptyState") || document.createElement("div"));
+      return;
+    }
+    var svg = buildSvgMarkup(state.matrix, state.dim, state.margin, state.ink, state.paper, state.moduleStyle, false);
+    area.innerHTML = svg;
+  }
+
+  var emptyStateNode = null;
+
+  function showEmpty(){
+    state.ready = false;
+    var area = $("#qrArea");
+    if(!emptyStateNode) emptyStateNode = $("#emptyState");
+    area.innerHTML = "";
+    if(emptyStateNode) area.appendChild(emptyStateNode);
+    $("#qrMeta").style.display = "none";
+    setActionsEnabled(false);
+  }
+
+  function setActionsEnabled(on){
+    ["btnCopyPayload","btnCopyImage","btnDownloadSvg","btnDownloadPngSmall","btnDownloadPng","btnDownloadPngMobile"].forEach(function(id){
+      $("#" + id).disabled = !on;
+    });
+    $("#mobileBar").classList.toggle("show", on);
+  }
+
+  /* ---------- generate ---------- */
+  function liveGenerate(){
+    var b = buildPayload();
+    if(!b.payload){
+      showEmpty();
+      return;
+    }
+    try{
+      var res = encode(b.payload);
+      state.matrix = res.matrix;
+      state.dim = res.count;
+      state.payload = b.payload;
+      state.label = b.label || b.payload.slice(0, 24);
+      state.ready = true;
+      renderPreview();
+      updateMeta(res.count);
+      setActionsEnabled(true);
+      checkContrast();
+    }catch(e){
+      state.ready = false;
+      showEmpty();
+    }
+  }
+
+  function updateMeta(count){
+    $("#qrMeta").style.display = "flex";
+    $("#payloadPreview").textContent = state.payload.replace(/\n/g, " ");
+    var version = Math.round((count - 17) / 4);
+    $("#qrDims").textContent = "v" + version + " · " + count + "×" + count;
+  }
+
+  function checkContrast(){
+    var ratio = contrastRatio(state.ink, state.paper);
+    $("#contrastWarn").classList.toggle("show", ratio < 5);
+  }
+
+  function commitGenerate(){
+    var b = buildPayload();
+    if(!b.payload){
+      toast("Add some content first");
+      return;
+    }
+    try{
+      var res = encode(b.payload);
+      state.matrix = res.matrix;
+      state.dim = res.count;
+      state.payload = b.payload;
+      state.label = b.label || b.payload.slice(0, 24);
+      state.ready = true;
+      renderPreview();
+      updateMeta(res.count);
+      setActionsEnabled(true);
+      checkContrast();
+      document.getElementById("mark").scrollIntoView({ behavior: (window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"), block: "center" });
+    }catch(e){
+      toast("Too much data for a QR mark. Shorten the content.");
+    }
+  }
+
+  $("#contentForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    commitGenerate();
+  });
+
+  ["f-url","f-text","f-ssid","f-wifipass","f-hidden","f-emailto","f-emailsub","f-emailbody","f-phone","f-cname","f-corg","f-cphone","f-cemail","f-curl"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener("input", liveGenerate);
+  });
+
+  /* ---------- samples ---------- */
+  $all(".sample-chip").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var kind = btn.dataset.sample;
+      if(kind === "website"){
+        setTab("link");
+        $("#f-url").value = "https://example.com";
+      } else if(kind === "wifi"){
+        setTab("wifi");
+        $("#f-ssid").value = "Guest Network";
+        $("#f-wifipass").value = "lattice-demo";
+        document.querySelector('input[name="wifisec"][value="WPA"]').checked = true;
+        updateWifiPassVisibility();
+      } else if(kind === "contact"){
+        setTab("contact");
+        $("#f-cname").value = "Ada Lovelace";
+        $("#f-corg").value = "Analytical Engines";
+        $("#f-cphone").value = "+44 20 7946 0958";
+        $("#f-cemail").value = "ada@example.com";
+        $("#f-curl").value = "example.com";
+      }
+      commitGenerate();
+    });
+  });
+
+  /* ---------- style controls ---------- */
+  function updateColorReadouts(){
+    $("#inkHex").textContent = state.ink.toUpperCase();
+    $("#paperHex").textContent = state.paper.toUpperCase();
+  }
+  $("#f-ink").addEventListener("input", function(){
+    state.ink = this.value;
+    updateColorReadouts();
+    if(state.ready) renderPreview();
+    checkContrast();
+  });
+  $("#f-paper").addEventListener("input", function(){
+    state.paper = this.value;
+    updateColorReadouts();
+    if(state.ready) renderPreview();
+    checkContrast();
+  });
+  $all(".preset-swatch").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      state.ink = btn.dataset.ink;
+      state.paper = btn.dataset.paper;
+      $("#f-ink").value = state.ink;
+      $("#f-paper").value = state.paper;
+      updateColorReadouts();
+      if(state.ready) renderPreview();
+      checkContrast();
+    });
+  });
+
+  $all(".module-toggle button").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      $all(".module-toggle button").forEach(function(b){ b.setAttribute("aria-pressed", "false"); });
+      btn.setAttribute("aria-pressed", "true");
+      state.moduleStyle = btn.dataset.module;
+      if(state.ready) renderPreview();
+    });
+  });
+
+  $all('input[name="ecc"]').forEach(function(r){
+    r.addEventListener("change", function(){
+      state.ecc = this.value;
+      liveGenerate();
+    });
+  });
+
+  $("#f-margin").addEventListener("input", function(){
+    state.margin = parseInt(this.value, 10);
+    $("#marginVal").textContent = state.margin;
+    if(state.ready) renderPreview();
+  });
+
+  $all(".size-toggle button").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      $all(".size-toggle button").forEach(function(b){ b.setAttribute("aria-pressed", "false"); });
+      btn.setAttribute("aria-pressed", "true");
+      state.downloadSize = parseInt(btn.dataset.size, 10);
+    });
+  });
+
+  /* ---------- export: PNG ---------- */
+  function renderCanvas(size){
+    var dim = state.dim + state.margin * 2;
+    var modulePx = Math.max(1, Math.round(size / dim));
+    var canvasSize = modulePx * dim;
+    var canvas = document.createElement("canvas");
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
+    var ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = state.paper;
+    ctx.fillRect(0, 0, canvasSize, canvasSize);
+    ctx.fillStyle = state.ink;
+    var soft = state.moduleStyle === "soft";
+    var rad = Math.round(modulePx * 0.28);
+    for(var r = 0; r < state.dim; r++){
+      for(var c = 0; c < state.dim; c++){
+        if(!state.matrix[r][c]) continue;
+        var x = (c + state.margin) * modulePx;
+        var y = (r + state.margin) * modulePx;
+        if(soft && !isFinder(r, c, state.dim) && ctx.roundRect){
+          ctx.beginPath();
+          ctx.roundRect(x, y, modulePx, modulePx, rad);
+          ctx.fill();
+        } else {
+          ctx.fillRect(x, y, modulePx, modulePx);
+        }
+      }
+    }
+    return canvas;
+  }
+
+  function slug(s){
+    return (s || "mark").toLowerCase().replace(/https?:\/\//, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 24) || "mark";
+  }
+
+  function downloadPng(size){
+    if(!state.ready) return;
+    var canvas = renderCanvas(size);
+    canvas.toBlob(function(blob){
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "lattice-" + slug(state.label) + ".png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+      toast("PNG saved");
+      saveHistory();
+    }, "image/png");
+  }
+
+  $("#btnDownloadPng").addEventListener("click", function(){ downloadPng(state.downloadSize); });
+  $("#btnDownloadPngMobile").addEventListener("click", function(){ downloadPng(state.downloadSize); });
+  $("#btnDownloadPngSmall").addEventListener("click", function(){ downloadPng(256); });
+
+  /* ---------- export: SVG ---------- */
+  $("#btnDownloadSvg").addEventListener("click", function(){
+    if(!state.ready) return;
+    var svg = buildSvgMarkup(state.matrix, state.dim, state.margin, state.ink, state.paper, state.moduleStyle, true);
+    var blob = new Blob([svg], { type: "image/svg+xml" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "lattice-" + slug(state.label) + ".svg";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    toast("SVG saved");
+    saveHistory();
+  });
+
+  /* ---------- copy image / payload ---------- */
+  $("#btnCopyImage").addEventListener("click", function(){
+    if(!state.ready) return;
+    var canvas = renderCanvas(state.downloadSize);
+    canvas.toBlob(function(blob){
+      if(navigator.clipboard && window.ClipboardItem){
+        navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(function(){
+          toast("Image copied");
+          saveHistory();
+        }).catch(function(){
+          toast("Copy not supported in this browser");
+        });
+      } else {
+        toast("Copy not supported in this browser");
+      }
+    }, "image/png");
+  });
+
+  $("#btnCopyPayload").addEventListener("click", function(){
+    if(!state.ready) return;
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(state.payload).then(function(){
+        toast("Payload copied");
+      }).catch(function(){
+        toast("Copy not supported in this browser");
+      });
+    }
+  });
+
+  /* ---------- history ---------- */
+  function loadHistory(){
+    try{
+      var raw = localStorage.getItem(HIST_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveHistoryList(list){
+    try{ localStorage.setItem(HIST_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  function saveHistory(){
+    if(!state.ready) return;
+    var list = loadHistory();
+    var entry = {
+      id: Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      kind: state.tab,
+      label: state.label,
+      payload: state.payload,
+      ink: state.ink,
+      paper: state.paper,
+      ecc: state.ecc,
+      margin: state.margin,
+      moduleStyle: state.moduleStyle
+    };
+    list.unshift(entry);
+    if(list.length > HIST_MAX) list = list.slice(0, HIST_MAX);
+    saveHistoryList(list);
+    renderHistory();
+  }
+  function renderHistory(){
+    var list = loadHistory();
+    var row = $("#historyRow");
+    var footer = $("#historyFooter");
+    if(!list.length){
+      row.innerHTML = '<span class="history-empty">Marks you download or copy will appear here.</span>';
+      footer.style.display = "none";
+      return;
+    }
+    footer.style.display = "flex";
+    row.innerHTML = "";
+    list.forEach(function(item){
+      var el = document.createElement("div");
+      el.className = "hist-item";
+      var thumbSvg = "";
+      try{
+        var res = encode(item.payload);
+        thumbSvg = buildSvgMarkup(res.matrix, res.count, item.margin, item.ink, item.paper, item.moduleStyle, false);
+      }catch(e){}
+      el.innerHTML =
+        '<button class="hist-open" aria-label="Restore ' + escapeHtml(item.label) + '"></button>' +
+        '<div class="hist-thumb">' + thumbSvg + '</div>' +
+        '<div class="hist-label">' + escapeHtml(item.label) + '</div>' +
+        '<div class="hist-kind">' + item.kind + '</div>' +
+        '<button class="hist-x" aria-label="Remove">✕</button>';
+      el.querySelector(".hist-open").addEventListener("click", function(){ restoreHistory(item); });
+      el.querySelector(".hist-x").addEventListener("click", function(ev){
+        ev.stopPropagation();
+        var l2 = loadHistory().filter(function(h){ return h.id !== item.id; });
+        saveHistoryList(l2);
+        renderHistory();
+      });
+      row.appendChild(el);
+    });
+  }
+  function escapeHtml(s){
+    var d = document.createElement("div");
+    d.textContent = s || "";
+    return d.innerHTML;
+  }
+
+  function restoreHistory(item){
+    setTab(item.kind);
+    if(item.kind === "link") $("#f-url").value = item.payload.replace(/^https?:\/\//, "");
+    if(item.kind === "text") $("#f-text").value = item.payload;
+    state.ink = item.ink; state.paper = item.paper;
+    $("#f-ink").value = item.ink; $("#f-paper").value = item.paper;
+    updateColorReadouts();
+    state.ecc = item.ecc;
+    document.querySelector('input[name="ecc"][value="' + item.ecc + '"]').checked = true;
+    state.margin = item.margin;
+    $("#f-margin").value = item.margin;
+    $("#marginVal").textContent = item.margin;
+    state.moduleStyle = item.moduleStyle;
+    $all(".module-toggle button").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.module === item.moduleStyle ? "true" : "false"); });
+
+    try{
+      var res = encode(item.payload);
+      state.matrix = res.matrix;
+      state.dim = res.count;
+      state.payload = item.payload;
+      state.label = item.label;
+      state.ready = true;
+      renderPreview();
+      updateMeta(res.count);
+      setActionsEnabled(true);
+      checkContrast();
+    }catch(e){}
+  }
+
+  $("#clearHistory").addEventListener("click", function(){
+    saveHistoryList([]);
+    renderHistory();
+  });
+
+  /* ---------- init ---------- */
+  updateColorReadouts();
+  showEmpty();
+  renderHistory();
+})();
+</script>
+</body>
+</html>
