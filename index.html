@@ -266,9 +266,9 @@ header{
 .row-inline{
   display:flex;
   gap:0.6rem;
-  align-items:flex-end;
+  align-items:center;
 }
-.row-inline .field{ flex:1; margin-bottom:0; }
+.row-inline input{ flex:1; min-width:0; }
 @media (max-width:520px){
   .row-inline{ flex-direction:column; align-items:stretch; }
 }
@@ -339,24 +339,6 @@ header{
 @media (min-width:521px){
   .gen-btn.beside{ width:auto; margin-top:0; flex-shrink:0; }
 }
-
-.samples{
-  display:flex;
-  gap:0.5rem;
-  flex-wrap:wrap;
-  margin-top:1.25rem;
-  padding-top:1.1rem;
-  border-top:1px solid var(--hair);
-}
-.sample-chip{
-  border:1px solid var(--hair);
-  background:transparent;
-  color:var(--muted);
-  border-radius:999px;
-  padding:0.35rem 0.75rem;
-  font-size:0.76rem;
-}
-.sample-chip:hover{ background:rgba(20,19,17,0.05); color:var(--ink); }
 
 /* style editor */
 .style-grid{
@@ -453,6 +435,68 @@ header{
   color:var(--card);
   border-color:var(--ink);
 }
+
+.advanced-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  border:1px solid var(--hair);
+  background:transparent;
+  color:var(--ink);
+  border-radius:var(--radius-ctl);
+  padding:0.7rem 0.9rem;
+  font-size:0.85rem;
+  min-height:44px;
+  margin-top:1.4rem;
+}
+.advanced-toggle:hover{ background:rgba(20,19,17,0.04); }
+.advanced-toggle .advanced-chevron{ transition:transform 150ms ease; }
+.advanced-toggle[aria-expanded="true"] .advanced-chevron{ transform:rotate(180deg); }
+.advanced-panel{
+  margin-top:1.2rem;
+  padding-top:1.2rem;
+  border-top:1px solid var(--hair);
+}
+
+.logo-row{
+  display:flex;
+  gap:0.6rem;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.logo-btn{
+  border:1px solid var(--hair);
+  background:transparent;
+  color:var(--ink);
+  border-radius:var(--radius-ctl);
+  padding:0.55rem 0.85rem;
+  font-size:0.82rem;
+  min-height:40px;
+  display:inline-flex;
+  align-items:center;
+  gap:0.4rem;
+}
+.logo-btn:hover{ background:rgba(20,19,17,0.04); }
+.logo-btn.remove{ color:var(--bad); border-color:rgba(143,45,33,0.3); }
+.logo-btn.remove:hover{ background:rgba(143,45,33,0.06); }
+.logo-preview-row{
+  display:flex;
+  align-items:center;
+  gap:0.7rem;
+  margin-top:0.9rem;
+}
+.logo-thumb{
+  width:40px;height:40px;
+  border-radius:9px;
+  border:1px solid var(--hair);
+  object-fit:cover;
+  background:#fff;
+  flex-shrink:0;
+}
+.logo-controls{ flex:1; min-width:0; }
+.logo-controls .slider-row{ margin-bottom:0.55rem; }
+.logo-controls .check-row{ margin-top:0; }
 
 .contrast-warn{
   display:none;
@@ -665,7 +709,6 @@ footer.foot{
           <button class="press" id="btnCopyPayload" disabled>Copy payload</button>
           <button class="press" id="btnCopyImage" disabled>Copy image</button>
           <button class="press" id="btnDownloadSvg" disabled>Download SVG</button>
-          <button class="press" id="btnDownloadPngSmall" disabled>PNG (small)</button>
           <button class="press primary" id="btnDownloadPng" disabled>Download PNG</button>
         </div>
       </div>
@@ -705,16 +748,16 @@ footer.foot{
 
         <form id="contentForm">
           <div class="tabpanel" data-panel="link">
-            <div class="row-inline">
-              <div class="field">
-                <label for="f-url">Link</label>
+            <div class="field">
+              <label for="f-url">Link</label>
+              <div class="row-inline">
                 <input type="text" id="f-url" placeholder="example.com" autocomplete="off">
-                <p class="field-hint">Paste a link, then press Enter or Generate.</p>
+                <button type="submit" class="gen-btn beside">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="6" height="6"/><rect x="11" y="3" width="6" height="6"/><rect x="3" y="11" width="6" height="6"/><path d="M11 11h3v3h-3zM16 11v6M11 16h6"/></svg>
+                  Generate
+                </button>
               </div>
-              <button type="submit" class="gen-btn beside">
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="6" height="6"/><rect x="11" y="3" width="6" height="6"/><rect x="3" y="11" width="6" height="6"/><path d="M11 11h3v3h-3zM16 11v6M11 16h6"/></svg>
-                Generate
-              </button>
+              <p class="field-hint">Paste a link, then press Enter or Generate.</p>
             </div>
           </div>
 
@@ -819,11 +862,6 @@ footer.foot{
           </div>
         </form>
 
-        <div class="samples">
-          <button class="sample-chip press" data-sample="website">Website</button>
-          <button class="sample-chip press" data-sample="wifi">Wi-Fi</button>
-          <button class="sample-chip press" data-sample="contact">Contact</button>
-        </div>
       </div>
 
       <div class="editor-card">
@@ -863,31 +901,64 @@ footer.foot{
           </div>
         </div>
 
-        <div class="field" style="margin-top:1.2rem;">
-          <label>Error correction</label>
-          <div class="seg-radio" role="radiogroup" aria-label="Error correction level" id="eccGroup">
-            <label><input type="radio" name="ecc" value="L"><span>L 12%</span></label>
-            <label><input type="radio" name="ecc" value="M" checked><span>M 18%</span></label>
-            <label><input type="radio" name="ecc" value="Q"><span>Q 24%</span></label>
-            <label><input type="radio" name="ecc" value="H"><span>H 30%</span></label>
-          </div>
-          <p class="field-hint">How much of the mark can be damaged and still scan. Higher is denser.</p>
-        </div>
+        <button type="button" class="advanced-toggle press" id="advancedToggle" aria-expanded="false" aria-controls="advancedPanel">
+          <span>Advanced options</span>
+          <svg class="advanced-chevron" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7.5l5 5 5-5"/></svg>
+        </button>
 
-        <div class="field" style="margin-top:1.2rem;">
-          <label for="f-margin">Quiet zone</label>
-          <div class="slider-row">
-            <input type="range" id="f-margin" min="0" max="4" step="1" value="2">
-            <span class="val" id="marginVal">2</span>
+        <div class="advanced-panel" id="advancedPanel" hidden>
+          <div class="field">
+            <label>Center image</label>
+            <div class="logo-row">
+              <input type="file" id="f-logo" accept="image/*" hidden>
+              <button type="button" class="logo-btn press" id="btnLogoUpload">
+                <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="12" rx="1.5"/><circle cx="7.2" cy="8.2" r="1.4"/><path d="M3 14.5l4.5-4.5 3 3 2.5-2.5 4 4"/></svg>
+                Upload image
+              </button>
+              <button type="button" class="logo-btn remove press" id="btnLogoRemove" style="display:none;">Remove</button>
+            </div>
+            <div class="logo-preview-row" id="logoPreviewRow" style="display:none;">
+              <img class="logo-thumb" id="logoThumb" alt="Center image preview">
+              <div class="logo-controls">
+                <div class="slider-row">
+                  <input type="range" id="f-logosize" min="10" max="35" step="1" value="22">
+                  <span class="val" id="logoSizeVal">22%</span>
+                </div>
+                <label class="check-row">
+                  <input type="checkbox" id="f-logobackdrop" checked>
+                  White backdrop behind image
+                </label>
+              </div>
+            </div>
+            <p class="field-hint">Adding an image covers part of the mark. Use error correction Q or H so it still scans.</p>
           </div>
-        </div>
 
-        <div class="field" style="margin-top:1.2rem;">
-          <label>Download size</label>
-          <div class="size-toggle" role="radiogroup" aria-label="Download size">
-            <button type="button" data-size="256" aria-pressed="false">256</button>
-            <button type="button" data-size="512" aria-pressed="true">512</button>
-            <button type="button" data-size="1024" aria-pressed="false">1024</button>
+          <div class="field" style="margin-top:1.2rem;">
+            <label>Error correction</label>
+            <div class="seg-radio" role="radiogroup" aria-label="Error correction level" id="eccGroup">
+              <label><input type="radio" name="ecc" value="L"><span>L 12%</span></label>
+              <label><input type="radio" name="ecc" value="M" checked><span>M 18%</span></label>
+              <label><input type="radio" name="ecc" value="Q"><span>Q 24%</span></label>
+              <label><input type="radio" name="ecc" value="H"><span>H 30%</span></label>
+            </div>
+            <p class="field-hint">How much of the mark can be damaged and still scan. Higher is denser.</p>
+          </div>
+
+          <div class="field" style="margin-top:1.2rem;">
+            <label for="f-margin">Quiet zone</label>
+            <div class="slider-row">
+              <input type="range" id="f-margin" min="0" max="4" step="1" value="2">
+              <span class="val" id="marginVal">2</span>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:1.2rem;">
+            <label>Download size</label>
+            <div class="size-toggle" role="radiogroup" aria-label="Download size">
+              <button type="button" data-size="256" aria-pressed="false">256</button>
+              <button type="button" data-size="512" aria-pressed="true">512</button>
+              <button type="button" data-size="1024" aria-pressed="false">1024</button>
+            </div>
           </div>
         </div>
       </div>
@@ -906,7 +977,7 @@ footer.foot{
     </section>
   </div>
 
-  <footer class="foot">Marks are encoded in the browser. Nothing is uploaded in server.</footer>
+  <footer class="foot">Marks are encoded in the browser. Nothing is uploaded.</footer>
 </div>
 
 <div class="mobile-bar" id="mobileBar">
@@ -934,10 +1005,11 @@ footer.foot{
     label: null,
     matrix: null,
     dim: 0,
-    ready: false
+    ready: false,
+    logo: { dataUrl: null, sizePct: 22, backdrop: true }
   };
 
-  /* ---------- helpers---------- */
+  /* ---------- helpers ---------- */
   function $(sel){ return document.querySelector(sel); }
   function $all(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
 
@@ -1091,10 +1163,10 @@ footer.foot{
   }
 
   /* ---------- render preview (SVG) ---------- */
-  function buildSvgMarkup(matrix, count, margin, ink, paper, moduleStyle, forExport){
+  function buildSvgMarkup(matrix, count, margin, ink, paper, moduleStyle, forExport, logo){
     var dim = count + margin * 2;
     var parts = [];
-    parts.push('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + dim + ' ' + dim + '" shape-rendering="' + (moduleStyle === "soft" ? "geometricPrecision" : "crispEdges") + '">');
+    parts.push('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ' + dim + ' ' + dim + '" shape-rendering="' + (moduleStyle === "soft" ? "geometricPrecision" : "crispEdges") + '">');
     parts.push('<rect x="0" y="0" width="' + dim + '" height="' + dim + '" fill="' + paper + '"/>');
     var rx = moduleStyle === "soft" ? 0.28 : 0;
     for(var r = 0; r < count; r++){
@@ -1109,6 +1181,19 @@ footer.foot{
         }
       }
     }
+    if(logo && logo.dataUrl){
+      var logoSize = dim * ((logo.sizePct || 22) / 100);
+      var lx = (dim - logoSize) / 2;
+      var ly = (dim - logoSize) / 2;
+      var lr = logoSize * 0.18;
+      if(logo.backdrop){
+        var pad = logoSize * 0.14;
+        parts.push('<rect x="' + (lx - pad) + '" y="' + (ly - pad) + '" width="' + (logoSize + pad * 2) + '" height="' + (logoSize + pad * 2) + '" rx="' + (lr + pad) + '" fill="' + paper + '"/>');
+      }
+      var clipId = "logoClip" + Math.random().toString(36).slice(2, 8);
+      parts.push('<defs><clipPath id="' + clipId + '"><rect x="' + lx + '" y="' + ly + '" width="' + logoSize + '" height="' + logoSize + '" rx="' + lr + '"/></clipPath></defs>');
+      parts.push('<image href="' + logo.dataUrl + '" xlink:href="' + logo.dataUrl + '" x="' + lx + '" y="' + ly + '" width="' + logoSize + '" height="' + logoSize + '" preserveAspectRatio="xMidYMid slice" clip-path="url(#' + clipId + ')"/>');
+    }
     parts.push('</svg>');
     return parts.join("");
   }
@@ -1120,7 +1205,7 @@ footer.foot{
       area.appendChild($("#emptyState") || document.createElement("div"));
       return;
     }
-    var svg = buildSvgMarkup(state.matrix, state.dim, state.margin, state.ink, state.paper, state.moduleStyle, false);
+    var svg = buildSvgMarkup(state.matrix, state.dim, state.margin, state.ink, state.paper, state.moduleStyle, false, state.logo);
     area.innerHTML = svg;
   }
 
@@ -1137,7 +1222,7 @@ footer.foot{
   }
 
   function setActionsEnabled(on){
-    ["btnCopyPayload","btnCopyImage","btnDownloadSvg","btnDownloadPngSmall","btnDownloadPng","btnDownloadPngMobile"].forEach(function(id){
+    ["btnCopyPayload","btnCopyImage","btnDownloadSvg","btnDownloadPng","btnDownloadPngMobile"].forEach(function(id){
       $("#" + id).disabled = !on;
     });
     $("#mobileBar").classList.toggle("show", on);
@@ -1212,31 +1297,6 @@ footer.foot{
     if(el) el.addEventListener("input", liveGenerate);
   });
 
-  /* ---------- samples ---------- */
-  $all(".sample-chip").forEach(function(btn){
-    btn.addEventListener("click", function(){
-      var kind = btn.dataset.sample;
-      if(kind === "website"){
-        setTab("link");
-        $("#f-url").value = "https://example.com";
-      } else if(kind === "wifi"){
-        setTab("wifi");
-        $("#f-ssid").value = "Guest Network";
-        $("#f-wifipass").value = "lattice-demo";
-        document.querySelector('input[name="wifisec"][value="WPA"]').checked = true;
-        updateWifiPassVisibility();
-      } else if(kind === "contact"){
-        setTab("contact");
-        $("#f-cname").value = "Ada Lovelace";
-        $("#f-corg").value = "Analytical Engines";
-        $("#f-cphone").value = "+44 20 7946 0958";
-        $("#f-cemail").value = "ada@example.com";
-        $("#f-curl").value = "example.com";
-      }
-      commitGenerate();
-    });
-  });
-
   /* ---------- style controls ---------- */
   function updateColorReadouts(){
     $("#inkHex").textContent = state.ink.toUpperCase();
@@ -1275,6 +1335,57 @@ footer.foot{
     });
   });
 
+  /* ---------- advanced options ---------- */
+  $("#advancedToggle").addEventListener("click", function(){
+    var panel = $("#advancedPanel");
+    var open = panel.hidden;
+    panel.hidden = !open;
+    this.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+
+  /* ---------- center image (logo) ---------- */
+  function setLogoUiVisible(on){
+    $("#logoPreviewRow").style.display = on ? "flex" : "none";
+    $("#btnLogoRemove").style.display = on ? "inline-flex" : "none";
+    $("#btnLogoUpload").textContent = "";
+    $("#btnLogoUpload").innerHTML = (on
+      ? '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="12" rx="1.5"/><circle cx="7.2" cy="8.2" r="1.4"/><path d="M3 14.5l4.5-4.5 3 3 2.5-2.5 4 4"/></svg>Change image'
+      : '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="12" rx="1.5"/><circle cx="7.2" cy="8.2" r="1.4"/><path d="M3 14.5l4.5-4.5 3 3 2.5-2.5 4 4"/></svg>Upload image');
+  }
+  $("#btnLogoUpload").addEventListener("click", function(){ $("#f-logo").click(); });
+  $("#f-logo").addEventListener("change", function(){
+    var file = this.files && this.files[0];
+    if(!file) return;
+    if(!/^image\//.test(file.type)){
+      toast("Please choose an image file");
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e){
+      state.logo.dataUrl = e.target.result;
+      $("#logoThumb").src = state.logo.dataUrl;
+      setLogoUiVisible(true);
+      if(state.ready) renderPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  $("#btnLogoRemove").addEventListener("click", function(){
+    state.logo.dataUrl = null;
+    $("#f-logo").value = "";
+    $("#logoThumb").src = "";
+    setLogoUiVisible(false);
+    if(state.ready) renderPreview();
+  });
+  $("#f-logosize").addEventListener("input", function(){
+    state.logo.sizePct = parseInt(this.value, 10);
+    $("#logoSizeVal").textContent = state.logo.sizePct + "%";
+    if(state.ready) renderPreview();
+  });
+  $("#f-logobackdrop").addEventListener("change", function(){
+    state.logo.backdrop = this.checked;
+    if(state.ready) renderPreview();
+  });
+
   $all('input[name="ecc"]').forEach(function(r){
     r.addEventListener("change", function(){
       state.ecc = this.value;
@@ -1297,7 +1408,25 @@ footer.foot{
   });
 
   /* ---------- export: PNG ---------- */
-  function renderCanvas(size){
+  function roundRectPath(ctx, x, y, w, h, r){
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function drawImageCover(ctx, img, x, y, w, h){
+    var scale = Math.max(w / img.width, h / img.height);
+    var dw = img.width * scale, dh = img.height * scale;
+    var dx = x + (w - dw) / 2, dy = y + (h - dh) / 2;
+    ctx.drawImage(img, dx, dy, dw, dh);
+  }
+
+  function renderCanvas(size, cb){
     var dim = state.dim + state.margin * 2;
     var modulePx = Math.max(1, Math.round(size / dim));
     var canvasSize = modulePx * dim;
@@ -1325,7 +1454,35 @@ footer.foot{
         }
       }
     }
-    return canvas;
+
+    if(state.logo && state.logo.dataUrl){
+      var img = new Image();
+      img.onload = function(){
+        var logoSize = Math.round(canvasSize * ((state.logo.sizePct || 22) / 100));
+        var lx = Math.round((canvasSize - logoSize) / 2);
+        var ly = Math.round((canvasSize - logoSize) / 2);
+        var radius = Math.round(logoSize * 0.18);
+        ctx.imageSmoothingEnabled = true;
+        if(state.logo.backdrop){
+          var pad = Math.round(logoSize * 0.14);
+          ctx.save();
+          roundRectPath(ctx, lx - pad, ly - pad, logoSize + pad * 2, logoSize + pad * 2, radius + pad);
+          ctx.fillStyle = state.paper;
+          ctx.fill();
+          ctx.restore();
+        }
+        ctx.save();
+        roundRectPath(ctx, lx, ly, logoSize, logoSize, radius);
+        ctx.clip();
+        drawImageCover(ctx, img, lx, ly, logoSize, logoSize);
+        ctx.restore();
+        cb(canvas);
+      };
+      img.onerror = function(){ cb(canvas); };
+      img.src = state.logo.dataUrl;
+    } else {
+      cb(canvas);
+    }
   }
 
   function slug(s){
@@ -1334,29 +1491,29 @@ footer.foot{
 
   function downloadPng(size){
     if(!state.ready) return;
-    var canvas = renderCanvas(size);
-    canvas.toBlob(function(blob){
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement("a");
-      a.href = url;
-      a.download = "lattice-" + slug(state.label) + ".png";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-      toast("PNG saved");
-      saveHistory();
-    }, "image/png");
+    renderCanvas(size, function(canvas){
+      canvas.toBlob(function(blob){
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "lattice-" + slug(state.label) + ".png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+        toast("PNG saved");
+        saveHistory();
+      }, "image/png");
+    });
   }
 
   $("#btnDownloadPng").addEventListener("click", function(){ downloadPng(state.downloadSize); });
   $("#btnDownloadPngMobile").addEventListener("click", function(){ downloadPng(state.downloadSize); });
-  $("#btnDownloadPngSmall").addEventListener("click", function(){ downloadPng(256); });
 
   /* ---------- export: SVG ---------- */
   $("#btnDownloadSvg").addEventListener("click", function(){
     if(!state.ready) return;
-    var svg = buildSvgMarkup(state.matrix, state.dim, state.margin, state.ink, state.paper, state.moduleStyle, true);
+    var svg = buildSvgMarkup(state.matrix, state.dim, state.margin, state.ink, state.paper, state.moduleStyle, true, state.logo);
     var blob = new Blob([svg], { type: "image/svg+xml" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -1373,19 +1530,20 @@ footer.foot{
   /* ---------- copy image / payload ---------- */
   $("#btnCopyImage").addEventListener("click", function(){
     if(!state.ready) return;
-    var canvas = renderCanvas(state.downloadSize);
-    canvas.toBlob(function(blob){
-      if(navigator.clipboard && window.ClipboardItem){
-        navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(function(){
-          toast("Image copied");
-          saveHistory();
-        }).catch(function(){
+    renderCanvas(state.downloadSize, function(canvas){
+      canvas.toBlob(function(blob){
+        if(navigator.clipboard && window.ClipboardItem){
+          navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(function(){
+            toast("Image copied");
+            saveHistory();
+          }).catch(function(){
+            toast("Copy not supported in this browser");
+          });
+        } else {
           toast("Copy not supported in this browser");
-        });
-      } else {
-        toast("Copy not supported in this browser");
-      }
-    }, "image/png");
+        }
+      }, "image/png");
+    });
   });
 
   $("#btnCopyPayload").addEventListener("click", function(){
