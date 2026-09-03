@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lattice — Mark studio QR</title>
+<title>Lattice — Mark studio</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
@@ -12,12 +12,37 @@
   --bg:#f2efe8;
   --card:#faf8f3;
   --ink:#141311;
+  --ink-hover:#26241f;
   --muted:#6e6b64;
   --hair:#ddd8cc;
   --bad:#8f2d21;
   --accent-ring: rgba(20,19,17,0.14);
+  
+  --dot-pattern: rgba(20,19,17,0.09);
+  --input-bg: #ffffff;
+  --hover-bg: rgba(20,19,17,0.06);
+  --bad-bg: rgba(143,45,33,0.08);
+  --bad-border: rgba(143,45,33,0.25);
+  
   --radius-card:24px;
   --radius-ctl:14px;
+}
+
+body.dark-theme {
+  --bg: #141311;
+  --card: #1c1b1a;
+  --ink: #f2efe8;
+  --ink-hover: #ddd8cc;
+  --muted: #a8a49c;
+  --hair: #3b3936;
+  --bad: #e85d4d;
+  --accent-ring: rgba(242,239,232,0.2);
+  
+  --dot-pattern: rgba(242,239,232,0.09);
+  --input-bg: #1f1e1c;
+  --hover-bg: rgba(242,239,232,0.08);
+  --bad-bg: rgba(232,93,77,0.15);
+  --bad-border: rgba(232,93,77,0.3);
 }
 
 *{box-sizing:border-box;}
@@ -30,12 +55,13 @@ body{
   line-height:1.5;
   position:relative;
   min-height:100vh;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 body::before{
   content:"";
   position:fixed;
   inset:0;
-  background-image:radial-gradient(circle, rgba(20,19,17,0.09) 1px, transparent 1px);
+  background-image:radial-gradient(circle, var(--dot-pattern) 1px, transparent 1px);
   background-size:22px 22px;
   pointer-events:none;
   z-index:0;
@@ -59,7 +85,7 @@ input,textarea,select{font-family:inherit;}
 
 header{
   display:flex;
-  align-items:baseline;
+  align-items:center;
   justify-content:space-between;
   padding:2.25rem 0 1.5rem;
   max-width:72rem;
@@ -68,6 +94,11 @@ header{
   padding-right:1.5rem;
   position:relative;
   z-index:1;
+}
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }
 .wordmark{
   font-family:'Instrument Serif', serif;
@@ -80,6 +111,20 @@ header{
   color:var(--muted);
   letter-spacing:0.01em;
 }
+
+.theme-btn {
+  background: transparent;
+  border: 1px solid var(--hair);
+  color: var(--ink);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.theme-btn:hover { background: var(--hover-bg); }
 
 .layout{
   display:grid;
@@ -105,6 +150,7 @@ header{
   border:1px solid var(--hair);
   border-radius:var(--radius-card);
   padding:1.75rem;
+  transition: background-color 200ms ease, border-color 200ms ease;
 }
 
 .qr-area{
@@ -179,7 +225,7 @@ header{
   justify-content:center;
   gap:0.4rem;
 }
-.qr-actions button:hover{ background:rgba(20,19,17,0.04); }
+.qr-actions button:hover{ background: var(--hover-bg); }
 .qr-actions button:disabled{ opacity:0.4; cursor:not-allowed; }
 .qr-actions button.primary{
   background:var(--ink);
@@ -187,7 +233,7 @@ header{
   border-color:var(--ink);
   grid-column:1/-1;
 }
-.qr-actions button.primary:hover{ background:#26241f; }
+.qr-actions button.primary:hover{ background: var(--ink-hover); }
 
 /* ---------- EDITOR ---------- */
 .editor-card{
@@ -196,6 +242,7 @@ header{
   border-radius:var(--radius-card);
   padding:1.75rem;
   margin-bottom:1.25rem;
+  transition: background-color 200ms ease, border-color 200ms ease;
 }
 
 .section-label{
@@ -244,7 +291,7 @@ header{
 .field textarea{
   width:100%;
   border:1px solid var(--hair);
-  background:#fff;
+  background: var(--input-bg);
   border-radius:var(--radius-ctl);
   padding:0.7rem 0.85rem;
   font-size:0.92rem;
@@ -287,7 +334,7 @@ header{
   border-radius:8px;
   display:flex;align-items:center;justify-content:center;
 }
-.eye-btn:hover{ background:rgba(20,19,17,0.06); }
+.eye-btn:hover{ background: var(--hover-bg); }
 
 .check-row{
   display:flex;
@@ -335,7 +382,7 @@ header{
   margin-top:1.1rem;
   width:100%;
 }
-.gen-btn:hover{ background:#26241f; }
+.gen-btn:hover{ background: var(--ink-hover); }
 @media (min-width:521px){
   .gen-btn.beside{ width:auto; margin-top:0; flex-shrink:0; }
 }
@@ -450,7 +497,7 @@ header{
   min-height:44px;
   margin-top:1.4rem;
 }
-.advanced-toggle:hover{ background:rgba(20,19,17,0.04); }
+.advanced-toggle:hover{ background: var(--hover-bg); }
 .advanced-toggle .advanced-chevron{ transition:transform 150ms ease; }
 .advanced-toggle[aria-expanded="true"] .advanced-chevron{ transform:rotate(180deg); }
 .advanced-panel{
@@ -477,9 +524,9 @@ header{
   align-items:center;
   gap:0.4rem;
 }
-.logo-btn:hover{ background:rgba(20,19,17,0.04); }
-.logo-btn.remove{ color:var(--bad); border-color:rgba(143,45,33,0.3); }
-.logo-btn.remove:hover{ background:rgba(143,45,33,0.06); }
+.logo-btn:hover{ background: var(--hover-bg); }
+.logo-btn.remove{ color:var(--bad); border-color:var(--bad-border); }
+.logo-btn.remove:hover{ background:var(--bad-bg); }
 .logo-preview-row{
   display:flex;
   align-items:center;
@@ -491,7 +538,7 @@ header{
   border-radius:9px;
   border:1px solid var(--hair);
   object-fit:cover;
-  background:#fff;
+  background: var(--input-bg);
   flex-shrink:0;
 }
 .logo-controls{ flex:1; min-width:0; }
@@ -502,9 +549,9 @@ header{
   display:none;
   align-items:flex-start;
   gap:0.5rem;
-  background:rgba(143,45,33,0.08);
+  background: var(--bad-bg);
   color:var(--bad);
-  border:1px solid rgba(143,45,33,0.25);
+  border:1px solid var(--bad-border);
   border-radius:var(--radius-ctl);
   padding:0.7rem 0.85rem;
   font-size:0.8rem;
@@ -530,7 +577,7 @@ header{
   border-radius:var(--radius-ctl);
   padding:0.6rem;
   position:relative;
-  background:#fff;
+  background: var(--input-bg);
   text-align:left;
 }
 .hist-item .hist-thumb{
@@ -661,8 +708,26 @@ footer.foot{
 <body>
 
 <header>
-  <div class="wordmark">lattice</div>
-  <div class="tagline">Mark studio (Made by Reahoon)</div>
+  <div class="header-left">
+    <div class="wordmark">lattice</div>
+    <div class="tagline">Mark studio (Made by Reahoon)</div>
+  </div>
+  <button id="themeToggle" class="theme-btn press" aria-label="Toggle dark mode" title="Toggle Theme">
+    <svg id="moonIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+    <svg id="sunIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </button>
 </header>
 
 <div class="wrap">
@@ -674,7 +739,7 @@ footer.foot{
         <div class="qr-area" id="qrArea" aria-live="polite">
           <div class="empty-state" id="emptyState">
             <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g stroke="#c9c3b3" stroke-width="1">
+              <g stroke="var(--muted)" stroke-width="1">
                 <path d="M4 4h28v28H4z" stroke-width="2"/>
                 <path d="M10 10h16v16H10z"/>
                 <path d="M88 4h28v28H88z" stroke-width="2"/>
@@ -682,7 +747,7 @@ footer.foot{
                 <path d="M4 88h28v28H4z" stroke-width="2"/>
                 <path d="M10 94h16v16H10z"/>
               </g>
-              <g fill="#d8d2c2">
+              <g fill="var(--muted)">
                 <rect x="44" y="4" width="6" height="6"/><rect x="56" y="4" width="6" height="6"/><rect x="68" y="4" width="6" height="6"/>
                 <rect x="44" y="16" width="6" height="6"/><rect x="68" y="16" width="6" height="6"/>
                 <rect x="4" y="44" width="6" height="6"/><rect x="16" y="44" width="6" height="6"/><rect x="28" y="44" width="6" height="6"/>
@@ -721,7 +786,8 @@ footer.foot{
         <p class="section-label">Content</p>
         <div class="tabs" role="tablist" id="tabs">
           <button class="tab-btn press" role="tab" data-tab="link" aria-selected="true">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 12a3 3 0 0 0 4.5.5l2-2a3 3 0 0 0-4.24-4.24l-1 1"/><path d="M12 8a3 3 0 0 0-4.5-.5l-2 2A3 3 0 0 0 9.74 13.7l1-1"/></svg>
+            <!-- New modern chain-link icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             Link
           </button>
           <button class="tab-btn press" role="tab" data-tab="text" aria-selected="false">
@@ -866,38 +932,15 @@ footer.foot{
 
       <div class="editor-card">
         <p class="section-label">Style</p>
-        <div class="style-grid">
-          <div class="field">
-            <label>Ink</label>
-            <div class="color-field">
-              <input type="color" id="f-ink" value="#141311">
-              <span class="hex" id="inkHex">#141311</span>
-            </div>
-          </div>
-          <div class="field">
-            <label>Paper</label>
-            <div class="color-field">
-              <input type="color" id="f-paper" value="#ffffff">
-              <span class="hex" id="paperHex">#FFFFFF</span>
-            </div>
-          </div>
-        </div>
-        <div class="presets" id="presets">
-          <button class="preset-swatch press" data-ink="#141311" data-paper="#ffffff" title="Ink" aria-label="Ink preset"><span style="background:#141311"></span><span style="background:#ffffff"></span></button>
-          <button class="preset-swatch press" data-ink="#f7f4ee" data-paper="#141311" title="Night" aria-label="Night preset"><span style="background:#f7f4ee"></span><span style="background:#141311"></span></button>
-          <button class="preset-swatch press" data-ink="#243038" data-paper="#f3f1ec" title="Slate" aria-label="Slate preset"><span style="background:#243038"></span><span style="background:#f3f1ec"></span></button>
-          <button class="preset-swatch press" data-ink="#1c3329" data-paper="#f2f6f3" title="Forest" aria-label="Forest preset"><span style="background:#1c3329"></span><span style="background:#f2f6f3"></span></button>
-        </div>
 
-        <div class="contrast-warn" id="contrastWarn">
-          <span>Low contrast — scanners may fail. Darken the ink or lighten the paper.</span>
-        </div>
-
-        <div class="field" style="margin-top:1.4rem;">
+        <!-- Module shape is now the only one outside the advanced panel -->
+        <div class="field">
           <label>Module</label>
           <div class="module-toggle" role="radiogroup" aria-label="Module shape">
             <button type="button" data-module="square" aria-pressed="true">Square</button>
             <button type="button" data-module="soft" aria-pressed="false">Soft</button>
+            <button type="button" data-module="dot" aria-pressed="false">Dot</button>
+            <button type="button" data-module="diamond" aria-pressed="false">Diamond</button>
           </div>
         </div>
 
@@ -907,7 +950,36 @@ footer.foot{
         </button>
 
         <div class="advanced-panel" id="advancedPanel" hidden>
-          <div class="field">
+          
+          <!-- Ink and Paper moved inside Advanced Options -->
+          <div class="style-grid">
+            <div class="field">
+              <label>Ink</label>
+              <div class="color-field">
+                <input type="color" id="f-ink" value="#141311">
+                <span class="hex" id="inkHex">#141311</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Paper</label>
+              <div class="color-field">
+                <input type="color" id="f-paper" value="#ffffff">
+                <span class="hex" id="paperHex">#FFFFFF</span>
+              </div>
+            </div>
+          </div>
+          <div class="presets" id="presets">
+            <button class="preset-swatch press" data-ink="#141311" data-paper="#ffffff" title="Ink" aria-label="Ink preset"><span style="background:#141311"></span><span style="background:#ffffff"></span></button>
+            <button class="preset-swatch press" data-ink="#f7f4ee" data-paper="#141311" title="Night" aria-label="Night preset"><span style="background:#f7f4ee"></span><span style="background:#141311"></span></button>
+            <button class="preset-swatch press" data-ink="#243038" data-paper="#f3f1ec" title="Slate" aria-label="Slate preset"><span style="background:#243038"></span><span style="background:#f3f1ec"></span></button>
+            <button class="preset-swatch press" data-ink="#1c3329" data-paper="#f2f6f3" title="Forest" aria-label="Forest preset"><span style="background:#1c3329"></span><span style="background:#f2f6f3"></span></button>
+          </div>
+
+          <div class="contrast-warn" id="contrastWarn">
+            <span>Low contrast — scanners may fail. Darken the ink or lighten the paper.</span>
+          </div>
+
+          <div class="field" style="margin-top:1.4rem;">
             <label>Center image</label>
             <div class="logo-row">
               <input type="file" id="f-logo" accept="image/*" hidden>
@@ -926,11 +998,11 @@ footer.foot{
                 </div>
                 <label class="check-row">
                   <input type="checkbox" id="f-logobackdrop" checked>
-                  White backdrop behind image
+                  Backdrop & Border behind image
                 </label>
               </div>
             </div>
-            <p class="field-hint">Adding an image covers part of the mark. Use error correction Q or H so it still scans.</p>
+            <p class="field-hint">We auto-adjust Error Correction to High when you add a logo.</p>
           </div>
 
           <div class="field" style="margin-top:1.2rem;">
@@ -1130,6 +1202,20 @@ footer.foot{
     if(r >= count - 7 && c < 7) return true;
     return false;
   }
+  
+  function isUnderLogo(r, c, count, margin, sizePct) {
+    var dim = count + margin * 2;
+    var x = c + margin;
+    var y = r + margin;
+    var logoSize = dim * (sizePct / 100);
+    var pad = logoSize * 0.14; 
+    var totalLogoArea = logoSize + pad * 2;
+    
+    var minCoord = (dim - totalLogoArea) / 2;
+    var maxCoord = (dim + totalLogoArea) / 2;
+    
+    return (x >= minCoord && x <= maxCoord && y >= minCoord && y <= maxCoord);
+  }
 
   function encode(text){
     var qr = qrcode(0, state.ecc);
@@ -1168,27 +1254,50 @@ footer.foot{
     var parts = [];
     parts.push('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ' + dim + ' ' + dim + '" shape-rendering="' + (moduleStyle === "soft" ? "geometricPrecision" : "crispEdges") + '">');
     parts.push('<rect x="0" y="0" width="' + dim + '" height="' + dim + '" fill="' + paper + '"/>');
-    var rx = moduleStyle === "soft" ? 0.28 : 0;
+    
+    var checkLogoHole = (logo && logo.dataUrl && logo.backdrop);
+
     for(var r = 0; r < count; r++){
       for(var c = 0; c < count; c++){
         if(!matrix[r][c]) continue;
-        var soft = moduleStyle === "soft" && !isFinder(r, c, count);
+        
+        if(checkLogoHole && isUnderLogo(r, c, count, margin, logo.sizePct)){
+           continue; 
+        }
+        
         var x = c + margin, y = r + margin;
-        if(soft){
-          parts.push('<rect x="' + x + '" y="' + y + '" width="1" height="1" rx="' + rx + '" ry="' + rx + '" fill="' + ink + '"/>');
-        } else {
+        var isF = isFinder(r, c, count);
+        
+        if (isF || moduleStyle === "square") {
           parts.push('<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + ink + '"/>');
+        } else if (moduleStyle === "soft") {
+          parts.push('<rect x="' + x + '" y="' + y + '" width="1" height="1" rx="0.28" ry="0.28" fill="' + ink + '"/>');
+        } else if (moduleStyle === "dot") {
+          parts.push('<circle cx="' + (x + 0.5) + '" cy="' + (y + 0.5) + '" r="0.45" fill="' + ink + '"/>');
+        } else if (moduleStyle === "diamond") {
+          var dPath = "M " + (x + 0.5) + " " + y + " L " + (x + 1) + " " + (y + 0.5) + " L " + (x + 0.5) + " " + (y + 1) + " L " + x + " " + (y + 0.5) + " Z";
+          parts.push('<path d="' + dPath + '" fill="' + ink + '"/>');
         }
       }
     }
+    
     if(logo && logo.dataUrl){
       var logoSize = dim * ((logo.sizePct || 22) / 100);
       var lx = (dim - logoSize) / 2;
       var ly = (dim - logoSize) / 2;
       var lr = logoSize * 0.18;
+      
       if(logo.backdrop){
         var pad = logoSize * 0.14;
-        parts.push('<rect x="' + (lx - pad) + '" y="' + (ly - pad) + '" width="' + (logoSize + pad * 2) + '" height="' + (logoSize + pad * 2) + '" rx="' + (lr + pad) + '" fill="' + paper + '"/>');
+        var bx = lx - pad;
+        var by = ly - pad;
+        var bw = logoSize + pad * 2;
+        var bh = logoSize + pad * 2;
+        var br = lr + pad;
+        var strokeW = 0.35; // Slightly bolder border width in SVG coordinate space
+        
+        // Soft-rounded square background with a slightly bolder border
+        parts.push('<rect x="' + bx + '" y="' + by + '" width="' + bw + '" height="' + bh + '" rx="' + br + '" ry="' + br + '" fill="' + paper + '" stroke="' + ink + '" stroke-width="' + strokeW + '"/>');
       }
       var clipId = "logoClip" + Math.random().toString(36).slice(2, 8);
       parts.push('<defs><clipPath id="' + clipId + '"><rect x="' + lx + '" y="' + ly + '" width="' + logoSize + '" height="' + logoSize + '" rx="' + lr + '"/></clipPath></defs>');
@@ -1352,6 +1461,9 @@ footer.foot{
       ? '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="12" rx="1.5"/><circle cx="7.2" cy="8.2" r="1.4"/><path d="M3 14.5l4.5-4.5 3 3 2.5-2.5 4 4"/></svg>Change image'
       : '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="12" rx="1.5"/><circle cx="7.2" cy="8.2" r="1.4"/><path d="M3 14.5l4.5-4.5 3 3 2.5-2.5 4 4"/></svg>Upload image');
   }
+  
+  var previousEccBeforeLogo = null;
+  
   $("#btnLogoUpload").addEventListener("click", function(){ $("#f-logo").click(); });
   $("#f-logo").addEventListener("change", function(){
     var file = this.files && this.files[0];
@@ -1365,7 +1477,15 @@ footer.foot{
       state.logo.dataUrl = e.target.result;
       $("#logoThumb").src = state.logo.dataUrl;
       setLogoUiVisible(true);
-      if(state.ready) renderPreview();
+      
+      if (state.ecc !== 'H') {
+         previousEccBeforeLogo = state.ecc;
+         state.ecc = 'H';
+         document.querySelector('input[name="ecc"][value="H"]').checked = true;
+         toast("Auto-switched to High Error Correction");
+      }
+      
+      if(state.ready) liveGenerate();
     };
     reader.readAsDataURL(file);
   });
@@ -1374,7 +1494,15 @@ footer.foot{
     $("#f-logo").value = "";
     $("#logoThumb").src = "";
     setLogoUiVisible(false);
-    if(state.ready) renderPreview();
+    
+    if (previousEccBeforeLogo) {
+       state.ecc = previousEccBeforeLogo;
+       document.querySelector('input[name="ecc"][value="' + previousEccBeforeLogo + '"]').checked = true;
+       previousEccBeforeLogo = null;
+       toast("Restored previous Error Correction");
+    }
+    
+    if(state.ready) liveGenerate();
   });
   $("#f-logosize").addEventListener("input", function(){
     state.logo.sizePct = parseInt(this.value, 10);
@@ -1438,16 +1566,39 @@ footer.foot{
     ctx.fillStyle = state.paper;
     ctx.fillRect(0, 0, canvasSize, canvasSize);
     ctx.fillStyle = state.ink;
-    var soft = state.moduleStyle === "soft";
+    
+    var checkLogoHole = (state.logo && state.logo.dataUrl && state.logo.backdrop);
     var rad = Math.round(modulePx * 0.28);
+    
     for(var r = 0; r < state.dim; r++){
       for(var c = 0; c < state.dim; c++){
         if(!state.matrix[r][c]) continue;
+        
+        if(checkLogoHole && isUnderLogo(r, c, state.dim, state.margin, state.logo.sizePct)){
+           continue;
+        }
+        
         var x = (c + state.margin) * modulePx;
         var y = (r + state.margin) * modulePx;
-        if(soft && !isFinder(r, c, state.dim) && ctx.roundRect){
+        var isF = isFinder(r, c, state.dim);
+        
+        if (isF || state.moduleStyle === "square") {
+          ctx.fillRect(x, y, modulePx, modulePx);
+        } else if (state.moduleStyle === "soft" && ctx.roundRect) {
           ctx.beginPath();
           ctx.roundRect(x, y, modulePx, modulePx, rad);
+          ctx.fill();
+        } else if (state.moduleStyle === "dot") {
+          ctx.beginPath();
+          ctx.arc(x + modulePx / 2, y + modulePx / 2, modulePx * 0.45, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (state.moduleStyle === "diamond") {
+          ctx.beginPath();
+          ctx.moveTo(x + modulePx / 2, y);
+          ctx.lineTo(x + modulePx, y + modulePx / 2);
+          ctx.lineTo(x + modulePx / 2, y + modulePx);
+          ctx.lineTo(x, y + modulePx / 2);
+          ctx.closePath();
           ctx.fill();
         } else {
           ctx.fillRect(x, y, modulePx, modulePx);
@@ -1463,14 +1614,29 @@ footer.foot{
         var ly = Math.round((canvasSize - logoSize) / 2);
         var radius = Math.round(logoSize * 0.18);
         ctx.imageSmoothingEnabled = true;
+        
         if(state.logo.backdrop){
           var pad = Math.round(logoSize * 0.14);
+          var bx = lx - pad;
+          var by = ly - pad;
+          var bw = logoSize + pad * 2;
+          var bh = logoSize + pad * 2;
+          var br = radius + pad;
+          
           ctx.save();
-          roundRectPath(ctx, lx - pad, ly - pad, logoSize + pad * 2, logoSize + pad * 2, radius + pad);
+          // Draw Backdrop
+          roundRectPath(ctx, bx, by, bw, bh, br);
           ctx.fillStyle = state.paper;
           ctx.fill();
+          
+          // Draw slightly bolder Smooth Border
+          ctx.lineWidth = Math.max(1.5, Math.round(canvasSize * 0.007)); // Thicker border
+          ctx.lineJoin = "round"; // Smoother corners
+          ctx.strokeStyle = state.ink;
+          ctx.stroke();
           ctx.restore();
         }
+        
         ctx.save();
         roundRectPath(ctx, lx, ly, logoSize, logoSize, radius);
         ctx.clip();
@@ -1621,6 +1787,7 @@ footer.foot{
       row.appendChild(el);
     });
   }
+  
   function escapeHtml(s){
     var d = document.createElement("div");
     d.textContent = s || "";
@@ -1660,6 +1827,38 @@ footer.foot{
     saveHistoryList([]);
     renderHistory();
   });
+
+  /* ---------- Theme Toggle Logic ---------- */
+  var themeToggleBtn = document.getElementById("themeToggle");
+  var moonIcon = document.getElementById("moonIcon");
+  var sunIcon = document.getElementById("sunIcon");
+
+  function applyTheme(isDark) {
+    if (isDark) {
+      document.body.classList.add("dark-theme");
+      moonIcon.style.display = "none";
+      sunIcon.style.display = "block";
+      localStorage.setItem("lattice.theme", "dark");
+    } else {
+      document.body.classList.remove("dark-theme");
+      moonIcon.style.display = "block";
+      sunIcon.style.display = "none";
+      localStorage.setItem("lattice.theme", "light");
+    }
+  }
+
+  var currentTheme = localStorage.getItem("lattice.theme");
+  if (!currentTheme) {
+    currentTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  applyTheme(currentTheme === "dark");
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", function() {
+      var isDark = document.body.classList.contains("dark-theme");
+      applyTheme(!isDark);
+    });
+  }
 
   /* ---------- init ---------- */
   updateColorReadouts();
