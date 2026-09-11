@@ -49,7 +49,7 @@ body.dark-theme {
 html,body{
   margin:0;
   padding:0;
-  overflow-x: hidden; /* Prevents horizontal scroll on mobile */
+  overflow-x: hidden;
   max-width: 100vw;
 }
 body{
@@ -143,7 +143,6 @@ header{
   .editor{order:1;}
 }
 
-/* Ensure grid items don't stretch the screen */
 .plate, .editor {
   min-width: 0;
 }
@@ -302,7 +301,7 @@ header{
 .field input[type=password],
 .field textarea{
   width:100%;
-  max-width: 100%; /* Force constraint */
+  max-width: 100%;
   border:1px solid var(--hair);
   background: var(--input-bg);
   border-radius:var(--radius-ctl);
@@ -321,7 +320,7 @@ header{
   font-size:0.74rem;
   color:var(--muted);
   margin-top:0.35rem;
-  word-break: break-word; /* Ensure long links in hints wrap */
+  word-break: break-word;
 }
 
 .row-inline{
@@ -930,7 +929,7 @@ footer.foot{
             </div>
             <div class="field">
               <label for="f-cemail">Email</label>
-              <input type="text" id="f-cemail" autocomplete="off">
+              <input type="text" id="f-cemail" placeholder="name@example.com" autocomplete="off">
             </div>
             <div class="field">
               <label for="f-curl">Website</label>
@@ -1173,6 +1172,11 @@ footer.foot{
         var sub = $("#f-emailsub").value;
         var body = $("#f-emailbody").value;
         if(!to) return { payload: "", label: "" };
+        
+        // Advanced Regex for strict email validation
+        var emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(to)) return { error: "Please enter a valid email address." };
+
         var qs = [];
         if(sub) qs.push("subject=" + encodeURIComponent(sub));
         if(body) qs.push("body=" + encodeURIComponent(body));
@@ -1191,6 +1195,13 @@ footer.foot{
         var email = $("#f-cemail").value.trim();
         var web = $("#f-curl").value.trim();
         if(!name) return { payload: "", label: "" };
+        
+        // Strict Email validation for contact VCard
+        if (email) {
+            var emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) return { error: "Please enter a valid email address." };
+        }
+
         var parts = name.split(/\s+/);
         var last = parts.length > 1 ? parts.pop() : "";
         var first = parts.join(" ");
@@ -1307,9 +1318,8 @@ footer.foot{
         var bw = logoSize + pad * 2;
         var bh = logoSize + pad * 2;
         var br = lr + pad;
-        var strokeW = 0.35; // Bolder border width in SVG coordinate space
+        var strokeW = 0.35;
         
-        // Soft-rounded square background with bolder border
         parts.push('<rect x="' + bx + '" y="' + by + '" width="' + bw + '" height="' + bh + '" rx="' + br + '" ry="' + br + '" fill="' + paper + '" stroke="' + ink + '" stroke-width="' + strokeW + '"/>');
       }
       var clipId = "logoClip" + Math.random().toString(36).slice(2, 8);
@@ -1353,6 +1363,13 @@ footer.foot{
   /* ---------- generate ---------- */
   function liveGenerate(){
     var b = buildPayload();
+    
+    // Clear QR if payload builder returned an error
+    if(b.error) {
+      showEmpty();
+      return;
+    }
+    
     if(!b.payload){
       showEmpty();
       return;
@@ -1388,6 +1405,13 @@ footer.foot{
 
   function commitGenerate(){
     var b = buildPayload();
+    
+    // Alert the user if email is invalid
+    if(b.error) {
+      toast(b.error);
+      return;
+    }
+    
     if(!b.payload){
       toast("Add some content first");
       return;
@@ -1643,8 +1667,8 @@ footer.foot{
           ctx.fill();
           
           // Draw bolder Smooth Border
-          ctx.lineWidth = Math.max(2.5, Math.round(canvasSize * 0.012)); // Bolder border
-          ctx.lineJoin = "round"; // Smoother corners
+          ctx.lineWidth = Math.max(2.5, Math.round(canvasSize * 0.012));
+          ctx.lineJoin = "round";
           ctx.strokeStyle = state.ink;
           ctx.stroke();
           ctx.restore();
