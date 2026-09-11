@@ -46,7 +46,12 @@ body.dark-theme {
 }
 
 *{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
+html,body{
+  margin:0;
+  padding:0;
+  overflow-x: hidden; /* Prevents horizontal scroll on mobile */
+  max-width: 100vw;
+}
 body{
   background:var(--bg);
   color:var(--ink);
@@ -138,6 +143,11 @@ header{
   .editor{order:1;}
 }
 
+/* Ensure grid items don't stretch the screen */
+.plate, .editor {
+  min-width: 0;
+}
+
 /* ---------- PLATE ---------- */
 .plate{
   position:sticky;
@@ -151,6 +161,7 @@ header{
   border-radius:var(--radius-card);
   padding:1.75rem;
   transition: background-color 200ms ease, border-color 200ms ease;
+  min-width: 0;
 }
 
 .qr-area{
@@ -243,6 +254,7 @@ header{
   padding:1.75rem;
   margin-bottom:1.25rem;
   transition: background-color 200ms ease, border-color 200ms ease;
+  min-width: 0;
 }
 
 .section-label{
@@ -290,6 +302,7 @@ header{
 .field input[type=password],
 .field textarea{
   width:100%;
+  max-width: 100%; /* Force constraint */
   border:1px solid var(--hair);
   background: var(--input-bg);
   border-radius:var(--radius-ctl);
@@ -308,14 +321,16 @@ header{
   font-size:0.74rem;
   color:var(--muted);
   margin-top:0.35rem;
+  word-break: break-word; /* Ensure long links in hints wrap */
 }
 
 .row-inline{
   display:flex;
   gap:0.6rem;
   align-items:center;
+  width: 100%;
 }
-.row-inline input{ flex:1; min-width:0; }
+.row-inline input{ flex:1; min-width:0; max-width: 100%; }
 @media (max-width:520px){
   .row-inline{ flex-direction:column; align-items:stretch; }
 }
@@ -595,6 +610,7 @@ header{
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
+  width: 100%;
 }
 .hist-item .hist-kind{
   font-size:0.66rem;
@@ -786,7 +802,6 @@ footer.foot{
         <p class="section-label">Content</p>
         <div class="tabs" role="tablist" id="tabs">
           <button class="tab-btn press" role="tab" data-tab="link" aria-selected="true">
-            <!-- New modern chain-link icon -->
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             Link
           </button>
@@ -933,7 +948,6 @@ footer.foot{
       <div class="editor-card">
         <p class="section-label">Style</p>
 
-        <!-- Module shape is now the only one outside the advanced panel -->
         <div class="field">
           <label>Module</label>
           <div class="module-toggle" role="radiogroup" aria-label="Module shape">
@@ -951,7 +965,6 @@ footer.foot{
 
         <div class="advanced-panel" id="advancedPanel" hidden>
           
-          <!-- Ink and Paper moved inside Advanced Options -->
           <div class="style-grid">
             <div class="field">
               <label>Ink</label>
@@ -1294,9 +1307,9 @@ footer.foot{
         var bw = logoSize + pad * 2;
         var bh = logoSize + pad * 2;
         var br = lr + pad;
-        var strokeW = 0.35; // Slightly bolder border width in SVG coordinate space
+        var strokeW = 0.35; // Bolder border width in SVG coordinate space
         
-        // Soft-rounded square background with a slightly bolder border
+        // Soft-rounded square background with bolder border
         parts.push('<rect x="' + bx + '" y="' + by + '" width="' + bw + '" height="' + bh + '" rx="' + br + '" ry="' + br + '" fill="' + paper + '" stroke="' + ink + '" stroke-width="' + strokeW + '"/>');
       }
       var clipId = "logoClip" + Math.random().toString(36).slice(2, 8);
@@ -1629,8 +1642,8 @@ footer.foot{
           ctx.fillStyle = state.paper;
           ctx.fill();
           
-          // Draw slightly bolder Smooth Border
-          ctx.lineWidth = Math.max(1.5, Math.round(canvasSize * 0.007)); // Thicker border
+          // Draw bolder Smooth Border
+          ctx.lineWidth = Math.max(2.5, Math.round(canvasSize * 0.012)); // Bolder border
           ctx.lineJoin = "round"; // Smoother corners
           ctx.strokeStyle = state.ink;
           ctx.stroke();
@@ -1787,7 +1800,6 @@ footer.foot{
       row.appendChild(el);
     });
   }
-  
   function escapeHtml(s){
     var d = document.createElement("div");
     d.textContent = s || "";
